@@ -2,6 +2,10 @@
 
 A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
 
+## Why this exists
+
+Dyno Music is a personal project. I built it for myself, so it follows my own needs and taste rather than trying to fit everyone: a clean, distraction-free way to listen to music that also looks good. Features get added when I need them, though I'm also open to the occasional idea from outside, and the design choices are mine. You're welcome to use it, fork it or borrow ideas from it, but expect it to stay opinionated.
+
 ## How it works
 
 Dyno Music is a hybrid client:
@@ -21,6 +25,8 @@ Early development. Working today, all from the app's own interface:
 - album, playlist and artist pages; search with filters and suggestions
 - playback controls, repeat, shuffle, likes, and a queue you can reorder
 - play next / add to queue / add to playlist from a right-click menu
+- a full-screen "Now playing" view, a custom title bar, listening history and settings
+- tray icon (keeps playing when the window is closed) and media keys / system media controls
 
 See [TODO.md](TODO.md) for what comes next.
 
@@ -32,6 +38,18 @@ Requirements: the [Tauri prerequisites](https://tauri.app/start/prerequisites/) 
 npm install
 npm run tauri dev
 ```
+
+## Releases and updates
+
+Every merge into `main` releases a new version through [the release workflow](.github/workflows/release.yml):
+
+1. If the PR didn't change the version, it bumps the patch number (0.1.0 → 0.1.1) and commits that to `main`. To release a bigger step, bump it in the PR: `node scripts/bump-version.mjs minor` (or `major`, or an exact version).
+2. It builds installers for Windows (MSI, NSIS), macOS (Apple Silicon and Intel) and Linux (AppImage, deb, rpm).
+3. Once every build has passed, it publishes the GitHub Release.
+
+Changes that only touch Markdown files don't create a version. Installed copies update themselves from the latest release; updates are signed and checked against the public key in `src-tauri/tauri.conf.json`.
+
+The workflow needs the `TAURI_SIGNING_PRIVATE_KEY` repository secret (the private half of the update key). The builds aren't code-signed, so Windows SmartScreen and macOS Gatekeeper warn on first install.
 
 ## Project layout
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Heart, LogIn } from "lucide-vue-next";
+import { LogIn } from "lucide-vue-next";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MediaCard from "@/main/components/MediaCard.vue";
@@ -7,7 +7,9 @@ import TrackList from "@/main/components/TrackList.vue";
 import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore, LIBRARY, LIKED_SONGS } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
-import type { MediaItem } from "@/shared/innertube/model";
+import type { BrowsePage, MediaItem } from "@/shared/innertube/model";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
+import DynoMascot from "@/main/components/brand/DynoMascot.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -31,10 +33,12 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    const page = await browse(tab.value.browseId);
-    // YouTube Music's own "New playlist" tile is not content.
-    items.value = page.shelves.flatMap((s) => s.items).filter((i) => i.kind !== "unknown");
-    continuation.value = page.continuation;
+    const apply = (page: BrowsePage) => {
+      // YouTube Music's own "New playlist" tile is not content.
+      items.value = page.shelves.flatMap((s) => s.items).filter((i) => i.kind !== "unknown");
+      continuation.value = page.continuation;
+    };
+    apply(await browse(tab.value.browseId, undefined, { onUpdate: apply }));
   } catch (err) {
     error.value = String(err);
   } finally {
@@ -59,7 +63,7 @@ const { sentinel, loadingMore } = useInfiniteScroll(
     <h1 class="text-3xl font-extrabold tracking-tight">Library</h1>
 
     <div v-if="!player.signedIn" class="glass flex flex-col items-start gap-3 rounded-3xl p-8">
-      <Heart class="size-8 text-accent-soft" />
+      <DynoMascot class="size-24" />
       <h2 class="text-xl font-bold">Your library lives in your account</h2>
       <p class="max-w-md text-sm text-ink-soft">Sign in to see your playlists, liked songs, albums and artists.</p>
       <button
@@ -91,13 +95,11 @@ const { sentinel, loadingMore } = useInfiniteScroll(
         <div v-for="n in 12" :key="n" class="aspect-square rounded-2xl bg-white/[0.07]" />
       </div>
 
-      <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
-        <p class="font-semibold">Couldn't load your library</p>
-        <p class="mt-1 text-ink-soft">{{ error }}</p>
-        <button class="glass glass-hover mt-3 rounded-xl px-3 py-1.5" @click="load">Try again</button>
-      </div>
+      <EmptyState v-else-if="error" mood="sleepy" title="Couldn't load your library" :message="error">
+      <button class="glass glass-hover rounded-xl px-4 py-2 text-sm" @click="load">Try again</button>
+    </EmptyState>
 
-      <p v-else-if="!items.length" class="text-sm text-ink-faint">Nothing here yet.</p>
+      <EmptyState v-else-if="!items.length" title="Nothing here yet" message="What you save on YouTube Music shows up here." />
 
       <TrackList v-else-if="tab.id === 'songs'" :items="items" :context="LIKED_SONGS.slice(2)" />
 

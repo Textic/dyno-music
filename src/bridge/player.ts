@@ -34,8 +34,8 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
       else if (video) video.currentTime = cmd.positionSec;
       break;
     case "volume":
-      if (player) player.setVolume(cmd.value);
-      else if (video) video.volume = cmd.value / 100;
+      setVolume(cmd.value);
+      saveVolume(cmd.value);
       break;
     case "watch":
       await watch(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.params ?? undefined);
@@ -62,6 +62,42 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
       await addToQueue(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.next);
       break;
   }
+  onChange();
+}
+
+const VOLUME_KEY = "dyno.volume";
+
+function setVolume(value: number): void {
+  const bar = playerBar();
+  if (bar?.updateVolume) bar.updateVolume(value);
+  const player = ytPlayer();
+  if (player) player.setVolume(value);
+  else {
+    const video = videoElement();
+    if (video) video.volume = value / 100;
+  }
+}
+
+function saveVolume(value: number): void {
+  try {
+    localStorage.setItem(VOLUME_KEY, String(value));
+  } catch {
+    // Storage unavailable: the volume just won't survive a restart.
+  }
+}
+
+/** YouTube Music starts at full volume; put back the one the user last chose in the app. */
+export async function restoreVolume(): Promise<void> {
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(VOLUME_KEY);
+  } catch {
+    return;
+  }
+  const saved = Number(stored);
+  if (stored === null || !Number.isFinite(saved)) return;
+  if (!(await waitFor(() => ytPlayer() !== null, 30_000, 250))) return;
+  setVolume(saved);
   onChange();
 }
 

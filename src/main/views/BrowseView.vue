@@ -9,6 +9,7 @@ import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
 import type { BrowsePage } from "@/shared/innertube/model";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
 
 const route = useRoute();
 const player = usePlayerStore();
@@ -31,7 +32,7 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    page.value = await browse(browseId.value, params.value);
+    page.value = await browse(browseId.value, params.value, { onUpdate: (fresh) => (page.value = fresh) });
   } catch (err) {
     error.value = String(err);
   } finally {
@@ -65,11 +66,9 @@ onMounted(load);
     <div v-for="n in 6" :key="n" class="h-12 rounded-xl bg-white/[0.05]" />
   </div>
 
-  <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
-    <p class="font-semibold">Couldn't load this page</p>
-    <p class="mt-1 text-ink-soft">{{ error }}</p>
-    <button class="glass glass-hover mt-3 rounded-xl px-3 py-1.5" @click="load">Try again</button>
-  </div>
+  <EmptyState v-else-if="error" mood="sleepy" title="Couldn't load this page" :message="error">
+      <button class="glass glass-hover rounded-xl px-4 py-2 text-sm" @click="load">Try again</button>
+    </EmptyState>
 
   <div v-else-if="page" class="flex flex-col gap-10">
     <!-- Artist: wide hero image. -->
@@ -155,7 +154,7 @@ onMounted(load);
 
     <MediaShelf v-for="(shelf, i) in otherShelves" :key="i" :shelf="shelf" />
 
-    <p v-if="!page.shelves.length" class="text-sm text-ink-faint">Nothing here yet.</p>
+    <EmptyState v-if="!page.shelves.length" title="Nothing here yet" />
 
     <div :ref="sentinel" class="h-px" />
     <p v-if="loadingMore" class="text-center text-sm text-ink-faint">Loading more…</p>

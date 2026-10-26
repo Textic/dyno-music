@@ -4,7 +4,7 @@
 import type { BridgeRequest, PlayerCommand } from "../shared/types";
 import { handleRequest } from "./innertube";
 import { log, send } from "./ipc";
-import { runCommand } from "./player";
+import { restoreVolume, runCommand } from "./player";
 import { startHousekeeping } from "./housekeeping";
 import { startQueueWatcher, startStateWatcher } from "./state";
 import { preferEnglish, waitFor, ytcfg, ytmApp } from "./ytm";
@@ -30,6 +30,7 @@ async function boot(): Promise<void> {
   startStateWatcher();
   startQueueWatcher();
   startHousekeeping();
+  void restoreVolume();
 }
 
 // The script also runs on Google's sign-in pages while the user logs in: stay out of those.

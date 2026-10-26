@@ -19,7 +19,9 @@
         "height": 760,
         "minWidth": 720,
         "minHeight": 480,
-        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required"
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required",
+        "decorations": false,
+        "shadow": true
       }
     ],
     "security": {
@@ -35,6 +37,23 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true,
+    "category": "Music",
+    "shortDescription": "A lightweight YouTube Music desktop client",
+    "longDescription": "Dyno Music is an unofficial, personal YouTube Music client with its own interface, built with Tauri.",
+    "publisher": "Textic",
+    "homepage": "https://github.com/Textic/dyno-music"
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVFMDVCMDlEOTBDMTA3NzkKUldSNUI4R1FuYkFGN2k2NkhrVUdoT2dZT1ROd0g0OFAzK0FLYkVlQmRibkd3RlhnNnUyUkxQYnoK",
+      "endpoints": [
+        "https://github.com/Textic/dyno-music/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }
