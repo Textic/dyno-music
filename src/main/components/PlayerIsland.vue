@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ListMusic } from "lucide-vue-next";
+import { ListMusic, PictureInPicture2 } from "lucide-vue-next";
 import CoverImage from "@/main/components/CoverImage.vue";
 import LikeButtons from "@/main/components/player/LikeButtons.vue";
 import SeekBar from "@/main/components/player/SeekBar.vue";
@@ -7,9 +7,14 @@ import TransportControls from "@/main/components/player/TransportControls.vue";
 import VolumeControl from "@/main/components/player/VolumeControl.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
+import * as api from "@/shared/api";
 
 const player = usePlayerStore();
 const ui = useUiStore();
+
+function openMini(): void {
+  api.openMiniPlayer().catch((err) => ui.toast(`Could not open the mini player: ${err}`, "error"));
+}
 </script>
 
 <template>
@@ -53,6 +58,14 @@ const ui = useUiStore();
         @click="ui.queueOpen = !ui.queueOpen"
       >
         <ListMusic class="size-[18px]" />
+      </button>
+      <button
+        class="grid size-9 place-items-center rounded-full text-ink-soft transition hover:bg-white/10 hover:text-ink"
+        aria-label="Mini player"
+        title="Mini player"
+        @click="openMini"
+      >
+        <PictureInPicture2 class="size-[18px]" />
       </button>
       <VolumeControl class="hidden lg:flex" />
     </div>

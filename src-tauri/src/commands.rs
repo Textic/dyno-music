@@ -5,9 +5,12 @@ use serde_json::{json, Value};
 use tauri::{AppHandle, Manager, State};
 
 use crate::auth;
+use crate::bridge::emit_ui;
+use crate::discord;
 use crate::media;
 use crate::player::{self, PLAYER_LABEL, YTM_URL};
 use crate::settings::{self, Settings, SettingsStore};
+use crate::shortcuts::{self, ShortcutAction};
 use crate::state::{Hub, LikeStatus, PlayerState, SessionInfo};
 
 const API_TIMEOUT: Duration = Duration::from_secs(15);
@@ -118,6 +121,19 @@ pub fn show_player(app: AppHandle) -> Result<(), String> {
     window.set_focus().map_err(|e| e.to_string())
 }
 
+/// Swaps the main window for the mini player.
+/// Async because creating a window from a sync command deadlocks the main thread on Windows.
+#[tauri::command]
+pub async fn open_mini_player(app: AppHandle) -> Result<(), String> {
+    crate::mini::open(&app).map_err(|e| e.to_string())
+}
+
+/// Closes the mini player and brings the main window back.
+#[tauri::command]
+pub fn close_mini_player(app: AppHandle) {
+    crate::mini::close(&app);
+}
+
 #[tauri::command]
 pub fn hide_player(app: AppHandle) -> Result<(), String> {
     let window = app
@@ -139,14 +155,35 @@ pub fn get_settings(store: State<'_, SettingsStore>) -> Settings {
     store.0.lock().unwrap().clone()
 }
 
+/// Saves and applies the settings, then tells every window. Fails, after saving, if a global
+/// shortcut could not be registered.
+/// Async: registering global shortcuts waits for the main thread, so it can't run on it.
 #[tauri::command]
-pub fn set_settings(app: AppHandle, store: State<'_, SettingsStore>, settings: Settings) -> Result<(), String> {
+pub async fn set_settings(app: AppHandle, store: State<'_, SettingsStore>, mut settings: Settings) -> Result<(), String> {
+    settings.shortcuts = shortcuts::complete(settings.shortcuts);
     settings::save(&app, &settings)?;
-    let media_controls = settings.media_controls;
-    *store.0.lock().unwrap() = settings;
+    *store.0.lock().unwrap() = settings.clone();
+
     let handle = app.clone();
+    let media_controls = settings.media_controls;
     app.run_on_main_thread(move || media::set_enabled(&handle, media_controls))
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    discord::set_enabled(&app, settings.discord_presence);
+    let errors = shortcuts::apply(&app, &settings);
+    emit_ui(&app, "settings://changed", &settings);
+
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(format!("Some global shortcuts could not be set: {}", errors.join("; ")))
+    }
+}
+
+/// Runs a shortcut's action from a key press in a Dyno Music window.
+/// Async because the mini player action may create a window (see open_mini_player).
+#[tauri::command]
+pub async fn run_shortcut(app: AppHandle, action: ShortcutAction) {
+    shortcuts::run(&app, action);
 }
 
 /// Forgets the Google session: clears the player's browsing data and reloads YouTube Music,

@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { QueueEntry } from "./innertube/model";
-import type { LogEntry, PlayerCommand, PlayerState, SessionInfo, Settings } from "./types";
+import type { LogEntry, PlayerCommand, PlayerState, SessionInfo, Settings, ShortcutAction } from "./types";
 
 export interface Snapshot {
   session: SessionInfo | null;
@@ -23,11 +23,20 @@ export const signOut = () => invoke<void>("sign_out");
 
 export const getSettings = () => invoke<Settings>("get_settings");
 
+/** Saves and applies; rejects, after saving, if a global shortcut could not be registered. */
 export const setSettings = (settings: Settings) => invoke<void>("set_settings", { settings });
+
+export const runShortcut = (action: ShortcutAction) => invoke<void>("run_shortcut", { action });
 
 export const showPlayer = () => invoke<void>("show_player");
 
 export const hidePlayer = () => invoke<void>("hide_player");
+
+/** Swaps the main window for the always-on-top mini player. */
+export const openMiniPlayer = () => invoke<void>("open_mini_player");
+
+/** Closes the mini player and brings the main window back. */
+export const closeMiniPlayer = () => invoke<void>("close_mini_player");
 
 export const getSnapshot = () => invoke<Snapshot>("get_snapshot");
 
@@ -42,3 +51,4 @@ export const onState = on<PlayerState>("player://state");
 export const onSession = on<SessionInfo>("player://session");
 export const onQueue = on<QueueEntry[]>("player://queue");
 export const onLog = on<LogEntry>("player://log");
+export const onSettings = on<Settings>("settings://changed");

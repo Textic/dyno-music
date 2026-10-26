@@ -3,9 +3,10 @@
 # 1. version: if the version in tauri.conf.json already has a release tag, bump the patch number
 #    (scripts/bump-version.mjs) and commit it to main; a PR that bumps the version itself (say
 #    to 0.2.0) keeps it. Then tag the commit.
-# 2. build: installers for Windows, macOS (Apple Silicon and Intel) and Linux, attached with
-#    latest.json to a draft GitHub Release.
-# 3. publish: only once every build passed, so the in-app updater never sees a half-built release.
+# 2. build: installers for Windows, macOS (Apple Silicon and Intel) and Linux, attached to a
+#    draft GitHub Release.
+# 3. publish: only once every build passed. Writes latest.json for the in-app updater from the
+#    uploaded installers and signatures (scripts/latest-json.mjs), then publishes the release.
 #
 # The version job also merges main back into dev, so dev carries the bumped version too.
 #
@@ -129,14 +130,29 @@ jobs:
           releaseBody: Download the installer for your system below. Installed copies update themselves.
           releaseDraft: true
           prerelease: false
-          includeUpdaterJson: true
+          # Written once by the publish job: four parallel builds updating it raced.
+          includeUpdaterJson: false
           args: ${{ matrix.args }}
 
   publish:
     needs: [version, build]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: v${{ needs.version.outputs.version }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.version.outputs.version }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Write latest.json for the updater
+        run: |
+          node scripts/latest-json.mjs "$TAG" "$GITHUB_REPOSITORY" latest.json
+          gh release upload "$TAG" latest.json --repo "$GITHUB_REPOSITORY" --clobber
+
       - name: Publish the release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "v${{ needs.version.outputs.version }}" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+        run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

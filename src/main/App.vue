@@ -11,11 +11,13 @@ import QueuePanel from "./components/QueuePanel.vue";
 import TitleBar from "./components/TitleBar.vue";
 import ToastHost from "./components/ToastHost.vue";
 import UpdateNotice from "./components/UpdateNotice.vue";
+import { useShortcuts } from "./composables/useShortcuts";
 import { useUiStore } from "./stores/ui";
 
 const route = useRoute();
 const ui = useUiStore();
 const scroller = ref<HTMLElement | null>(null);
+useShortcuts();
 
 // The page scrolls inside <main>, not the window, so the router can't reset it by itself.
 watch(

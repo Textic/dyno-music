@@ -7,6 +7,8 @@ use std::sync::Mutex;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager};
 
+use crate::shortcuts::{self, Bindings};
+
 /// Mirrors `Settings` in src/shared/types.ts.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
@@ -16,6 +18,9 @@ pub struct Settings {
     pub close_to_tray: bool,
     /// Media keys and the system media panel (Windows SMTC, macOS Now Playing, Linux MPRIS).
     pub media_controls: bool,
+    /// "Listening to…" on the user's Discord profile, while Discord runs on this computer.
+    pub discord_presence: bool,
+    pub shortcuts: Bindings,
 }
 
 impl Default for Settings {
@@ -23,6 +28,8 @@ impl Default for Settings {
         Self {
             close_to_tray: false,
             media_controls: true,
+            discord_presence: true,
+            shortcuts: shortcuts::defaults(),
         }
     }
 }
@@ -35,10 +42,12 @@ fn path(app: &AppHandle) -> Option<PathBuf> {
 
 /// Missing or unreadable settings fall back to the defaults.
 pub fn load(app: &AppHandle) -> Settings {
-    path(app)
+    let mut settings: Settings = path(app)
         .and_then(|p| fs::read_to_string(p).ok())
         .and_then(|text| serde_json::from_str(&text).ok())
-        .unwrap_or_default()
+        .unwrap_or_default();
+    settings.shortcuts = shortcuts::complete(settings.shortcuts);
+    settings
 }
 
 pub fn save(app: &AppHandle, settings: &Settings) -> Result<(), String> {
