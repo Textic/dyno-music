@@ -6,21 +6,6 @@
       </linearGradient>
     </defs>
     <rect width="64" height="64" rx="16" fill="url(#bg)" />
-    <g transform="translate(3 4) scale(0.45)">
-      <g fill="#ffffff">
-        <path d="M58 28 L62 14 L70 24 Z" />
-        <path d="M46 42 L44 29 L55 36 Z" />
-        <path d="M33 60 L28 48 L41 54 Z" />
-        <path d="M34 84 C18 84 8 76 4 62 C14 70 24 72 36 70 Z" />
-        <ellipse cx="54" cy="82" rx="30" ry="26" />
-        <rect x="38" y="96" width="13" height="18" rx="6.5" />
-        <rect x="61" y="96" width="13" height="18" rx="6.5" />
-        <path d="M44 66 C46 50 52 40 60 34 L72 52 C66 58 62 64 60 72 Z" />
-        <rect x="54" y="24" width="54" height="40" rx="19" />
-      </g>
-      <circle cx="90" cy="41" r="6" fill="#b4237c" />
-      <path d="M92 55 q6 5 12 -1" fill="none" stroke="#b4237c" stroke-width="4" stroke-linecap="round" />
-      <path d="M64 42 C62 16 98 10 104 30" fill="none" stroke="#1b1824" stroke-width="7" stroke-linecap="round" />
-      <rect x="60" y="34" width="14" height="20" rx="6" fill="#1b1824" />
-    </g>
+    <path d="M15 12 H31 C44 12 52 21 52 32 C52 43 44 52 31 52 H15 Z" fill="#ffffff" />
+    <path d="M27 23 L41 32 L27 41 Z" fill="#d02c9a" stroke="#d02c9a" stroke-width="3" stroke-linejoin="round" />
   </svg>
