@@ -23,12 +23,16 @@ jobs:
       matrix:
         platform: [windows-latest, macos-latest, ubuntu-22.04]
     runs-on: ${{ matrix.platform }}
+    # A stuck step would otherwise hold the check for GitHub's 6-hour limit.
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
+        # Ubuntu's package mirrors sometimes stall; fail fast instead of waiting.
+        timeout-minutes: 8
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libdbus-1-dev
