@@ -1,5 +1,6 @@
 // YouTube Music content for the UI: InnerTube requests through the bridge, parsed into model.ts.
 
+import { cached, invalidate, type CacheOptions } from "@/main/services/cache";
 import { ytmApi } from "@/shared/api";
 import type { BrowsePage, MediaItem, SearchPage, SearchSuggestions, Shelf } from "@/shared/innertube/model";
 import { parseBrowse, parseContinuation, parseSearch, parseSuggestions } from "@/shared/innertube/parsers";
@@ -18,9 +19,24 @@ export const LIBRARY = {
 /** YouTube Music's "Shuffle play" params for a watch-playlist endpoint. */
 export const SHUFFLE_PARAMS = "wAEB8gECKAE%3D";
 
-export async function browse(browseId: string, params?: string): Promise<BrowsePage> {
+function browseKey(browseId: string, params?: string): string {
+  return `browse:${browseId}:${params ?? ""}`;
+}
+
+async function fetchBrowse(browseId: string, params?: string): Promise<BrowsePage> {
   const raw = await ytmApi("browse", params ? { browseId, params } : { browseId });
   return parseBrowse(raw, browseId);
+}
+
+/** Cached (see cache.ts); `onUpdate` gets the refreshed page when a stale one was shown. */
+export function browse(
+  browseId: string,
+  params?: string,
+  options: Pick<CacheOptions<BrowsePage>, "onUpdate"> = {},
+): Promise<BrowsePage> {
+  // History should always be current.
+  if (browseId === HISTORY) return fetchBrowse(browseId, params);
+  return cached(browseKey(browseId, params), () => fetchBrowse(browseId, params), options);
 }
 
 export async function browseMore(
@@ -29,8 +45,13 @@ export async function browseMore(
   return parseContinuation(await ytmApi("browse", { continuation }));
 }
 
-export async function search(query: string, params?: string): Promise<SearchPage> {
-  return parseSearch(await ytmApi("search", params ? { query, params } : { query }));
+/** Cached for this session only: going back to a search shows it at once. */
+export function search(query: string, params?: string): Promise<SearchPage> {
+  return cached(
+    `search:${query}:${params ?? ""}`,
+    async () => parseSearch(await ytmApi("search", params ? { query, params } : { query })),
+    { persist: false },
+  );
 }
 
 export async function searchMore(continuation: string): Promise<{ items: MediaItem[]; continuation?: string }> {
@@ -51,6 +72,7 @@ const RATE_ENDPOINT: Record<LikeStatus, string> = {
 /** Rates any track, not only the current one. */
 export async function rate(videoId: string, status: LikeStatus): Promise<void> {
   await ytmApi(RATE_ENDPOINT[status], { target: { videoId } });
+  invalidate(browseKey(LIKED_SONGS));
 }
 
 /** Returns false when YouTube Music refused, e.g. because the track is already there. */
@@ -59,13 +81,20 @@ export async function addToPlaylist(playlistId: string, videoId: string): Promis
     playlistId: playlistId.replace(/^VL/, ""),
     actions: [{ action: "ACTION_ADD_VIDEO", addedVideoId: videoId }],
   });
-  return response?.status === "STATUS_SUCCEEDED";
+  const added = response?.status === "STATUS_SUCCEEDED";
+  if (added) {
+    invalidate(browseKey(`VL${playlistId.replace(/^VL/, "")}`));
+    invalidate(browseKey(LIBRARY.playlists));
+  }
+  return added;
 }
 
 /** Playlists in the user's library, without YouTube Music's "New playlist" tile. */
-export async function libraryPlaylists(): Promise<MediaItem[]> {
-  const page = await browse(LIBRARY.playlists);
-  return page.shelves.flatMap((s) => s.items).filter((i) => i.kind === "playlist" && i.browseId);
+export async function libraryPlaylists(onUpdate?: (playlists: MediaItem[]) => void): Promise<MediaItem[]> {
+  const pick = (page: BrowsePage) =>
+    page.shelves.flatMap((s) => s.items).filter((i) => i.kind === "playlist" && i.browseId);
+  const page = await browse(LIBRARY.playlists, undefined, { onUpdate: onUpdate && ((fresh) => onUpdate(pick(fresh))) });
+  return pick(page);
 }
 
 export function isTrack(item: MediaItem): boolean {

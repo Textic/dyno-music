@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { clearCache } from "@/main/services/cache";
 import { SHUFFLE_PARAMS } from "@/main/services/music";
 import * as api from "@/shared/api";
 import type { MediaItem, QueueEntry } from "@/shared/innertube/model";
@@ -25,6 +26,11 @@ export const usePlayerStore = defineStore("player", () => {
   const isPlaying = computed(() => state.value.status === "playing" || state.value.status === "buffering");
   const artistNames = computed(() => track.value?.artists.map((a) => a.name).join(", ") ?? "");
   const signedIn = computed(() => session.value?.loggedIn === true);
+
+  // Cached pages belong to the account that loaded them.
+  watch(session, (next, previous) => {
+    if (previous && next && previous.loggedIn !== next.loggedIn) clearCache();
+  });
 
   function setState(next: PlayerState): void {
     state.value = next;

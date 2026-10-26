@@ -31,7 +31,7 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    page.value = await browse(browseId.value, params.value);
+    page.value = await browse(browseId.value, params.value, { onUpdate: (fresh) => (page.value = fresh) });
   } catch (err) {
     error.value = String(err);
   } finally {

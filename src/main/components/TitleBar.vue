@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { ChevronLeft, ChevronRight, Copy, Minus, Square, X } from "lucide-vue-next";
+import { Copy, Minus, Square, X } from "lucide-vue-next";
 import { onBeforeUnmount, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
 import SearchBar from "@/main/components/SearchBar.vue";
 
-const router = useRouter();
 // Null in a plain browser (previewing the UI without Tauri).
 const appWindow = isTauri() ? getCurrentWindow() : null;
 const maximized = ref(false);
@@ -22,8 +20,6 @@ onMounted(async () => {
 });
 onBeforeUnmount(() => unlisten?.());
 
-const navButton =
-  "grid size-8 place-items-center rounded-full text-ink-soft transition hover:bg-white/10 hover:text-ink";
 const windowButton = "grid h-full w-12 place-items-center text-ink-soft transition hover:bg-white/10 hover:text-ink";
 </script>
 
@@ -38,15 +34,6 @@ const windowButton = "grid h-full w-12 place-items-center text-ink-soft transiti
         D
       </div>
       <span class="pointer-events-none hidden text-lg font-extrabold tracking-tight lg:inline">dyno</span>
-    </div>
-
-    <div class="flex items-center gap-1 pl-6" data-tauri-drag-region>
-      <button :class="navButton" aria-label="Back" @click="router.back()">
-        <ChevronLeft class="size-[18px]" />
-      </button>
-      <button :class="navButton" aria-label="Forward" @click="router.forward()">
-        <ChevronRight class="size-[18px]" />
-      </button>
     </div>
 
     <div class="min-w-0 flex-1 px-6" data-tauri-drag-region>

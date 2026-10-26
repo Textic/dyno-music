@@ -17,7 +17,7 @@ export const useLibraryStore = defineStore("library", () => {
     }
     loading.value = true;
     try {
-      playlists.value = await libraryPlaylists();
+      playlists.value = await libraryPlaylists((fresh) => (playlists.value = fresh));
     } catch (err) {
       player.log({ level: "warn", message: `Could not load your playlists: ${err}` });
     } finally {

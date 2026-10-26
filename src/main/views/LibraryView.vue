@@ -7,7 +7,7 @@ import TrackList from "@/main/components/TrackList.vue";
 import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore, LIBRARY, LIKED_SONGS } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
-import type { MediaItem } from "@/shared/innertube/model";
+import type { BrowsePage, MediaItem } from "@/shared/innertube/model";
 
 const route = useRoute();
 const router = useRouter();
@@ -31,10 +31,12 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    const page = await browse(tab.value.browseId);
-    // YouTube Music's own "New playlist" tile is not content.
-    items.value = page.shelves.flatMap((s) => s.items).filter((i) => i.kind !== "unknown");
-    continuation.value = page.continuation;
+    const apply = (page: BrowsePage) => {
+      // YouTube Music's own "New playlist" tile is not content.
+      items.value = page.shelves.flatMap((s) => s.items).filter((i) => i.kind !== "unknown");
+      continuation.value = page.continuation;
+    };
+    apply(await browse(tab.value.browseId, undefined, { onUpdate: apply }));
   } catch (err) {
     error.value = String(err);
   } finally {

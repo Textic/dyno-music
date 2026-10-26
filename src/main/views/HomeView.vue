@@ -5,7 +5,7 @@ import MediaShelf from "@/main/components/MediaShelf.vue";
 import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore, HOME } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
-import type { Shelf } from "@/shared/innertube/model";
+import type { BrowsePage, Shelf } from "@/shared/innertube/model";
 
 const player = usePlayerStore();
 
@@ -26,9 +26,11 @@ async function load(): Promise<void> {
   loading.value = true;
   error.value = null;
   try {
-    const page = await browse(HOME);
-    shelves.value = page.shelves;
-    continuation.value = page.continuation;
+    const apply = (page: BrowsePage) => {
+      shelves.value = page.shelves;
+      continuation.value = page.continuation;
+    };
+    apply(await browse(HOME, undefined, { onUpdate: apply }));
   } catch (err) {
     error.value = String(err);
   } finally {
