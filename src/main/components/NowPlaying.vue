@@ -55,7 +55,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
   >
     <section
       v-if="ui.nowPlayingOpen && player.track"
-      class="absolute inset-0 z-[35] flex overflow-hidden bg-night"
+      class="absolute inset-0 z-[35] flex overflow-hidden bg-night pt-14"
       aria-label="Now playing"
     >
       <!-- Its own, stronger take on the ambient background. -->
@@ -70,7 +70,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       </div>
 
       <button
-        class="absolute top-4 left-5 z-10 grid size-10 place-items-center rounded-full bg-black/30 text-ink-soft transition hover:bg-black/50 hover:text-ink"
+        class="absolute top-[4.5rem] left-5 z-10 grid size-10 place-items-center rounded-full bg-black/30 text-ink-soft transition hover:bg-black/50 hover:text-ink"
         aria-label="Close now playing"
         @click="close"
       >

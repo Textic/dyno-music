@@ -43,9 +43,11 @@ watch(
         <UpdateNotice />
         <PlayerIsland v-show="!ui.nowPlayingOpen" />
       </div>
-
-      <NowPlaying />
     </div>
+
+    <!-- Covers the whole window, title bar included, so it reads as one surface; the title bar
+         stays above it (z-40) and keeps working. -->
+    <NowPlaying />
 
     <ContextMenu />
     <AddToPlaylistDialog />
