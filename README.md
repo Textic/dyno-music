@@ -73,3 +73,7 @@ No code is copied from these projects; all credit for their ideas goes to their 
 ## Disclaimer
 
 This is an unofficial personal project. It is not affiliated with or endorsed by Google or YouTube, and it relies on undocumented APIs that may change at any time.
+
+## License
+
+[MIT](LICENSE)
