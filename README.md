@@ -41,13 +41,13 @@ npm run tauri dev
 
 ## Releases and updates
 
-Installers for Windows (MSI, NSIS), macOS (Apple Silicon and Intel) and Linux (AppImage, deb, rpm) are built by [the release workflow](.github/workflows/release.yml) and attached to a draft GitHub Release. Installed copies update themselves from the latest published release; updates are signed and checked against the public key in `src-tauri/tauri.conf.json`.
+Every merge into `main` releases a new version through [the release workflow](.github/workflows/release.yml):
 
-To publish a version:
+1. If the PR didn't change the version, it bumps the patch number (0.1.0 → 0.1.1) and commits that to `main`. To release a bigger step, bump it in the PR: `node scripts/bump-version.mjs minor` (or `major`, or an exact version).
+2. It builds installers for Windows (MSI, NSIS), macOS (Apple Silicon and Intel) and Linux (AppImage, deb, rpm).
+3. Once every build has passed, it publishes the GitHub Release.
 
-1. Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`.
-2. Push a tag such as `v0.2.0`.
-3. When the workflow finishes, review the draft release and publish it.
+Changes that only touch Markdown files don't create a version. Installed copies update themselves from the latest release; updates are signed and checked against the public key in `src-tauri/tauri.conf.json`.
 
 The workflow needs the `TAURI_SIGNING_PRIVATE_KEY` repository secret (the private half of the update key). The builds aren't code-signed, so Windows SmartScreen and macOS Gatekeeper warn on first install.
 
