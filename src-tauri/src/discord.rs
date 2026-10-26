@@ -14,7 +14,7 @@ use tauri::{AppHandle, Manager};
 use crate::state::{PlayerState, PlayerStatus};
 
 /// The "Dyno Music" application in the Discord Developer Portal; its name is what Discord shows.
-const CLIENT_ID: &str = "";
+const CLIENT_ID: &str = "1564391999711223988";
 
 const RETRY_EVERY: Duration = Duration::from_secs(15);
 /// How often the worker wakes up with nothing new, to retry a lost connection.
