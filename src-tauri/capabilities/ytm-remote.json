@@ -9,6 +9,7 @@
   "permissions": [
     "allow-bridge-ready",
     "allow-bridge-state",
+    "allow-bridge-queue",
     "allow-bridge-response",
     "allow-bridge-log"
   ]

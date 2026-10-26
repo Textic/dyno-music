@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { Library, LogIn, Pause, Play, Search } from "lucide-vue-next";
-import { computed } from "vue";
+import { LogIn } from "lucide-vue-next";
+import { computed, onMounted, ref } from "vue";
+import MediaShelf from "@/main/components/MediaShelf.vue";
+import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
+import { browse, browseMore, HOME } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
+import type { Shelf } from "@/shared/innertube/model";
 
 const player = usePlayerStore();
+
+const shelves = ref<Shelf[]>([]);
+const continuation = ref<string | undefined>();
+const loading = ref(true);
+const error = ref<string | null>(null);
 
 const greeting = computed(() => {
   const hour = new Date().getHours();
@@ -13,9 +22,30 @@ const greeting = computed(() => {
   return "Good evening";
 });
 
-const tiles = [
-  { to: { name: "search" }, title: "Search", subtitle: "Songs, artists and albums", icon: Search },
-];
+async function load(): Promise<void> {
+  loading.value = true;
+  error.value = null;
+  try {
+    const page = await browse(HOME);
+    shelves.value = page.shelves;
+    continuation.value = page.continuation;
+  } catch (err) {
+    error.value = String(err);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const { sentinel, loadingMore } = useInfiniteScroll(
+  async () => {
+    const more = await browseMore(continuation.value!);
+    shelves.value.push(...more.shelves);
+    continuation.value = more.continuation;
+  },
+  () => Boolean(continuation.value),
+);
+
+onMounted(load);
 </script>
 
 <template>
@@ -23,34 +53,12 @@ const tiles = [
     <h1 class="text-4xl font-extrabold tracking-tight">{{ greeting }}</h1>
 
     <section
-      v-if="player.track"
-      class="glass flex items-center gap-6 overflow-hidden rounded-3xl p-5"
-      aria-label="Now playing"
-    >
-      <img :src="player.track.thumbnail" alt="" class="size-36 rounded-2xl object-cover shadow-2xl shadow-black/60" />
-      <div class="min-w-0 flex-1">
-        <p class="text-xs font-semibold tracking-widest text-ink-faint uppercase">Now playing</p>
-        <p class="mt-2 truncate text-3xl font-bold">{{ player.track.title }}</p>
-        <p class="mt-1 truncate text-ink-soft">{{ player.artistNames }}</p>
-      </div>
-      <button
-        class="mr-2 grid size-16 shrink-0 place-items-center rounded-full bg-accent shadow-xl shadow-accent/30 transition hover:scale-105 active:scale-95"
-        :aria-label="player.isPlaying ? 'Pause' : 'Play'"
-        @click="player.toggle()"
-      >
-        <Pause v-if="player.isPlaying" class="size-7" fill="currentColor" />
-        <Play v-else class="size-7 translate-x-0.5" fill="currentColor" />
-      </button>
-    </section>
-
-    <section
       v-if="player.session && !player.session.loggedIn"
       class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent/30 via-fuchsia-600/20 to-indigo-600/20 p-8"
     >
       <h2 class="text-2xl font-bold">Bring your music with you</h2>
       <p class="mt-2 max-w-md text-sm text-ink-soft">
-        Sign in with your Google account to see your library, liked songs and playlists. You can still search and
-        play without signing in.
+        Sign in with your Google account for recommendations made for you, your library, liked songs and playlists.
       </p>
       <button
         class="mt-5 inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-night transition hover:brightness-95 disabled:cursor-wait disabled:opacity-60"
@@ -62,30 +70,25 @@ const tiles = [
       </button>
     </section>
 
-    <section class="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-4">
-      <RouterLink
-        v-for="tile in tiles"
-        :key="tile.title"
-        :to="tile.to"
-        class="glass glass-hover flex items-center gap-4 rounded-2xl p-4 transition"
-      >
-        <span class="grid size-11 place-items-center rounded-xl bg-accent/15 text-accent-soft">
-          <component :is="tile.icon" class="size-5" />
-        </span>
-        <span>
-          <span class="block text-sm font-semibold">{{ tile.title }}</span>
-          <span class="block text-xs text-ink-faint">{{ tile.subtitle }}</span>
-        </span>
-      </RouterLink>
-      <div class="glass flex cursor-default items-center gap-4 rounded-2xl p-4 opacity-60">
-        <span class="grid size-11 place-items-center rounded-xl bg-white/5 text-ink-faint">
-          <Library class="size-5" />
-        </span>
-        <span>
-          <span class="block text-sm font-semibold">Library</span>
-          <span class="block text-xs text-ink-faint">Coming soon</span>
-        </span>
+    <div v-if="loading" class="flex flex-col gap-10" aria-label="Loading recommendations">
+      <div v-for="n in 3" :key="n" class="flex animate-pulse flex-col gap-3">
+        <div class="h-5 w-48 rounded bg-white/10" />
+        <div class="flex gap-4 overflow-hidden">
+          <div v-for="m in 7" :key="m" class="aspect-square w-40 shrink-0 rounded-2xl bg-white/[0.07]" />
+        </div>
       </div>
-    </section>
+    </div>
+
+    <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
+      <p class="font-semibold">Couldn't load your recommendations</p>
+      <p class="mt-1 text-ink-soft">{{ error }}</p>
+      <button class="glass glass-hover mt-3 rounded-xl px-3 py-1.5" @click="load">Try again</button>
+    </div>
+
+    <template v-else>
+      <MediaShelf v-for="(shelf, i) in shelves" :key="i" :shelf="shelf" />
+      <div :ref="sentinel" class="h-px" />
+      <p v-if="loadingMore" class="text-center text-sm text-ink-faint">Loading more…</p>
+    </template>
   </div>
 </template>

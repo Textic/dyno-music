@@ -6,5 +6,8 @@ export const router = createRouter({
   routes: [
     { path: "/", name: "home", component: HomeView },
     { path: "/search", name: "search", component: () => import("./views/SearchView.vue") },
+    { path: "/library/:tab?", name: "library", component: () => import("./views/LibraryView.vue") },
+    /** Albums, playlists, artists and "See all" pages, by InnerTube browse id. */
+    { path: "/browse/:id", name: "browse", component: () => import("./views/BrowseView.vue") },
   ],
 });

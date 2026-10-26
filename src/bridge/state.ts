@@ -1,7 +1,9 @@
-import type { PlayerState, PlayerStatus } from "../shared/types";
+import { parseQueueItem } from "../shared/innertube/parsers";
+import type { QueueEntry } from "../shared/innertube/model";
+import type { LikeStatus, PlayerState, PlayerStatus } from "../shared/types";
 import { send } from "./ipc";
 import { setOnChange } from "./player";
-import { isAdShowing, videoElement, ytPlayer } from "./ytm";
+import { isAdShowing, pageStore, playerBar, videoElement, ytPlayer } from "./ytm";
 
 const POLL_MS = 500;
 /** While playing, position updates go out at most this often; the UI interpolates in between. */
@@ -19,6 +21,13 @@ function largestArtwork(): string {
   const artwork = navigator.mediaSession?.metadata?.artwork ?? [];
   const best = [...artwork].sort((a, b) => parseInt(b.sizes ?? "0") - parseInt(a.sizes ?? "0"))[0];
   return best?.src ?? "";
+}
+
+function likeStatusOf(videoId: string): LikeStatus {
+  const fromStore = pageStore()?.getState().likeStatus?.videos?.[videoId];
+  if (fromStore) return fromStore;
+  const attribute = document.querySelector("#like-button-renderer")?.getAttribute("like-status");
+  return attribute === "LIKE" || attribute === "DISLIKE" ? attribute : "INDIFFERENT";
 }
 
 function readState(): PlayerState {
@@ -46,6 +55,9 @@ function readState(): PlayerState {
     volume: player?.getVolume() ?? (video ? video.volume * 100 : 100),
     muted: player?.isMuted() ?? video?.muted ?? false,
     isAd: isAdShowing(),
+    repeat: pageStore()?.getState().queue?.repeatMode ?? "NONE",
+    shuffle: playerBar()?.hasAttribute("shuffle-on") ?? false,
+    likeStatus: videoId ? likeStatusOf(videoId) : "INDIFFERENT",
   };
 }
 
@@ -76,4 +88,39 @@ export function startStateWatcher(): void {
   for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "volumechange", "loadedmetadata"]) {
     document.addEventListener(type, () => push(true), true);
   }
+}
+
+function readQueue(): QueueEntry[] {
+  const state = pageStore()?.getState().queue;
+  const selected = state?.selectedItemIndex ?? -1;
+  return (state?.items ?? [])
+    .map((item, index) => parseQueueItem(item, index))
+    .filter((entry): entry is QueueEntry => entry !== null)
+    .map((entry) => ({ ...entry, selected: entry.selected || entry.index === selected }));
+}
+
+/** Sends YouTube Music's queue to Rust whenever the page's store changes it. */
+export function startQueueWatcher(): void {
+  let lastKey = "";
+  let pending = 0;
+  const push = () => {
+    pending = 0;
+    const queue = readQueue();
+    const key = queue.map((e) => `${e.videoId}${e.selected ? "*" : ""}`).join(",");
+    if (key === lastKey) return;
+    lastKey = key;
+    void send("bridge_queue", { queue });
+  };
+  const schedule = () => {
+    if (!pending) pending = window.setTimeout(push, 150);
+  };
+
+  // The store only exists once the player has been set up; keep trying until it does.
+  const attach = () => {
+    const store = pageStore();
+    if (!store) return void setTimeout(attach, 1000);
+    store.subscribe(schedule);
+    schedule();
+  };
+  attach();
 }

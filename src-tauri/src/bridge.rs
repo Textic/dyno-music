@@ -43,6 +43,12 @@ pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
 }
 
 #[tauri::command]
+pub fn bridge_queue(app: AppHandle, hub: State<'_, Hub>, queue: Value) {
+    *hub.queue.lock().unwrap() = queue.clone();
+    let _ = app.emit_to(UI_WINDOW, "player://queue", &queue);
+}
+
+#[tauri::command]
 pub fn bridge_response(
     hub: State<'_, Hub>,
     id: u64,

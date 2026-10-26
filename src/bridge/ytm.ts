@@ -40,6 +40,60 @@ export function ytmApp(): HTMLElement | null {
   return document.querySelector("ytmusic-app");
 }
 
+/** YouTube Music's own API client: it adds the session, context and visitor data itself. */
+interface NetworkManager {
+  fetch<T = unknown>(path: string, body: Record<string, unknown>): Promise<T>;
+}
+
+export function networkManager(): NetworkManager | null {
+  const manager = (ytmApp() as unknown as { networkManager?: NetworkManager } | null)?.networkManager;
+  return typeof manager?.fetch === "function" ? manager : null;
+}
+
+/** The page keeps its queue in a Redux-like store, reachable through the #queue element. */
+interface QueueStoreState {
+  queue?: {
+    items?: unknown[];
+    selectedItemIndex?: number;
+    repeatMode?: "NONE" | "ALL" | "ONE";
+    queueContextParams?: string;
+    nextQueueItemId?: number;
+  };
+  likeStatus?: { videos?: Record<string, "LIKE" | "DISLIKE" | "INDIFFERENT"> };
+}
+
+export interface QueueElement extends HTMLElement {
+  dispatch(action: { type: string; payload?: unknown }): void;
+  queue: {
+    getItems(): unknown[];
+    store: {
+      store: {
+        getState(): QueueStoreState;
+        subscribe(listener: () => void): () => void;
+      };
+    };
+  };
+}
+
+export function queueElement(): QueueElement | null {
+  const el = document.querySelector("#queue") as QueueElement | null;
+  return typeof el?.dispatch === "function" && el.queue?.store?.store ? el : null;
+}
+
+export function pageStore() {
+  return queueElement()?.queue.store.store ?? null;
+}
+
+/** <ytmusic-player-bar> exposes the same handlers its buttons use. */
+export interface PlayerBarElement extends HTMLElement {
+  onRepeatButtonClick?(): void;
+  queue?: { shuffle?(): void };
+}
+
+export function playerBar(): PlayerBarElement | null {
+  return document.querySelector("ytmusic-player-bar");
+}
+
 export function isAdShowing(): boolean {
   return document.querySelector("#movie_player.ad-showing") !== null;
 }

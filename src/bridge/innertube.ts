@@ -3,7 +3,7 @@
 
 import type { BridgeRequest } from "../shared/types";
 import { send } from "./ipc";
-import { ytcfg } from "./ytm";
+import { networkManager, ytcfg } from "./ytm";
 
 function cookie(name: string): string | null {
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
@@ -21,7 +21,8 @@ async function sapisidHash(): Promise<string | null> {
   return `SAPISIDHASH ${timestamp}_${hex}`;
 }
 
-async function innertube(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
+/** Fallback for when the page's own client is not available. */
+async function manualFetch(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "X-Origin": location.origin,
@@ -42,6 +43,11 @@ async function innertube(endpoint: string, body: Record<string, unknown>): Promi
   });
   if (!response.ok) throw new Error(`InnerTube "${endpoint}" answered HTTP ${response.status}`);
   return response.json();
+}
+
+export function innertube(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
+  const manager = networkManager();
+  return manager ? manager.fetch(`/${endpoint}`, body) : manualFetch(endpoint, body);
 }
 
 export async function handleRequest({ id, endpoint, body }: BridgeRequest): Promise<void> {

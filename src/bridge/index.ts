@@ -5,7 +5,8 @@ import type { BridgeRequest, PlayerCommand } from "../shared/types";
 import { handleRequest } from "./innertube";
 import { log, send } from "./ipc";
 import { runCommand } from "./player";
-import { startStateWatcher } from "./state";
+import { startHousekeeping } from "./housekeeping";
+import { startQueueWatcher, startStateWatcher } from "./state";
 import { waitFor, ytcfg, ytmApp } from "./ytm";
 
 interface DynoBridge {
@@ -26,6 +27,8 @@ async function boot(): Promise<void> {
     session: { loggedIn: ytcfg("LOGGED_IN") === true, url: location.href },
   });
   startStateWatcher();
+  startQueueWatcher();
+  startHousekeeping();
 }
 
 // The script also runs on Google's sign-in pages while the user logs in: stay out of those.

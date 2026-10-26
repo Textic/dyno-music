@@ -19,6 +19,7 @@ pub fn run() {
             commands::get_snapshot,
             bridge::bridge_ready,
             bridge::bridge_state,
+            bridge::bridge_queue,
             bridge::bridge_response,
             bridge::bridge_log,
         ])

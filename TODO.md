@@ -12,14 +12,14 @@ Roadmap for Dyno Music. Suggested order: the **Essentials** first (the app is no
 
 ## Essentials
 
-- [ ] **Home recommendations**: "For you", "Recently played" and mixes from the account, as carousels
-- [ ] **Library**: liked songs, playlists, albums and artists; playlists listed in the sidebar
-- [ ] **Album, artist and playlist pages**
-- [ ] **Queue**: see what's next, reorder, remove, "play next"
-- [ ] **Full search**: tabs for songs, albums, artists and playlists, plus suggestions while typing
-- [ ] **Track actions**: like / dislike, add to playlist, right-click menu
-- [ ] **Repeat and shuffle**
-- [ ] **Never pause on its own**: dismiss YouTube Music's "Still listening?" prompt, which nobody sees in the hidden window
+- [x] **Home recommendations**: "For you", "Recently played" and mixes from the account, as carousels
+- [x] **Library**: liked songs, playlists, albums and artists; playlists listed in the sidebar
+- [x] **Album, artist and playlist pages**
+- [x] **Queue**: see what's next, reorder, remove, "play next"
+- [x] **Full search**: tabs for songs, albums, artists and playlists, plus suggestions while typing
+- [x] **Track actions**: like / dislike, add to playlist, right-click menu
+- [x] **Repeat and shuffle**
+- [x] **Never pause on its own**: dismiss YouTube Music's "Still listening?" prompt, which nobody sees in the hidden window
 
 ## Look and feel
 

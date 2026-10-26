@@ -1,10 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import type { QueueEntry } from "./innertube/model";
 import type { LogEntry, PlayerCommand, PlayerState, SessionInfo } from "./types";
 
 export interface Snapshot {
   session: SessionInfo | null;
   state: PlayerState;
+  /** null until the bridge first reports the queue. */
+  queue: QueueEntry[] | null;
 }
 
 export const playerCmd = (cmd: PlayerCommand) => invoke<void>("player_cmd", { cmd });
@@ -28,4 +31,5 @@ const on =
 
 export const onState = on<PlayerState>("player://state");
 export const onSession = on<SessionInfo>("player://session");
+export const onQueue = on<QueueEntry[]>("player://queue");
 export const onLog = on<LogEntry>("player://log");

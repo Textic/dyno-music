@@ -15,16 +15,14 @@ The page can only call the `bridge_*` commands (`src-tauri/capabilities/ytm-remo
 
 ## Status
 
-Early development. You can sign in with Google, search, and play, pause and seek through the hidden player from the app's own interface.
+Early development. Working today, all from the app's own interface:
 
-Planned next:
+- Google sign-in, home recommendations, and your library (playlists, liked songs, albums, artists)
+- album, playlist and artist pages; search with filters and suggestions
+- playback controls, repeat, shuffle, likes, and a queue you can reorder
+- play next / add to queue / add to playlist from a right-click menu
 
-- home recommendations, library, playlists and queue
-- full-screen "Now playing" view with colours from the artwork
-- tray icon and media keys
-- mini player
-- Discord Rich Presence
-- Windows, macOS and Linux builds
+See [TODO.md](TODO.md) for what comes next.
 
 ## Development
 
@@ -41,7 +39,7 @@ npm run tauri dev
 |---|---|
 | `src/main` | App UI (Vue 3 + Tailwind CSS 4, Pinia, Vue Router) |
 | `src/bridge` | Script injected into music.youtube.com (built to `dist-bridge/bridge.js`) |
-| `src/shared` | Types, IPC wrappers and InnerTube response parsers |
+| `src/shared` | Types, IPC wrappers, and the InnerTube model and parsers |
 | `src-tauri/src` | Rust hub: player window, shared state, commands |
 
 ## Inspiration

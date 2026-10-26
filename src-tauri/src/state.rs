@@ -19,6 +19,24 @@ pub enum PlayerStatus {
     Ended,
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum RepeatMode {
+    #[default]
+    None,
+    All,
+    One,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum LikeStatus {
+    Like,
+    Dislike,
+    #[default]
+    Indifferent,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Artist {
@@ -40,7 +58,7 @@ pub struct Track {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", default)]
 pub struct PlayerState {
     pub status: PlayerStatus,
     pub track: Option<Track>,
@@ -48,6 +66,9 @@ pub struct PlayerState {
     pub volume: f64,
     pub muted: bool,
     pub is_ad: bool,
+    pub repeat: RepeatMode,
+    pub shuffle: bool,
+    pub like_status: LikeStatus,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -63,6 +84,8 @@ type ApiResult = Result<Value, String>;
 #[derive(Default)]
 pub struct Hub {
     pub player: Mutex<PlayerState>,
+    /// YouTube Music's queue as the bridge last reported it (`QueueEntry[]` in model.ts).
+    pub queue: Mutex<Value>,
     /// `None` until the bridge reports that music.youtube.com finished loading.
     pub session: Mutex<Option<SessionInfo>>,
     /// Set while the player window is showing Google's sign-in (see auth.rs).

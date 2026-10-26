@@ -1,6 +1,7 @@
 import type { PlayerCommand } from "../shared/types";
+import { innertube } from "./innertube";
 import { log } from "./ipc";
-import { clickPlayerBar, videoElement, waitFor, ytmApp, ytPlayer } from "./ytm";
+import { clickPlayerBar, pageStore, playerBar, queueElement, videoElement, waitFor, ytmApp, ytPlayer } from "./ytm";
 
 /** Called by the state watcher after a command so the UI updates without waiting for the next poll. */
 let onChange: () => void = () => {};
@@ -36,50 +37,108 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
       if (player) player.setVolume(cmd.value);
       else if (video) video.volume = cmd.value / 100;
       break;
-    case "playVideo":
-      await playVideo(cmd.videoId, cmd.playlistId ?? undefined);
+    case "watch":
+      await watch(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.params ?? undefined);
+      break;
+    case "repeat":
+      playerBar()?.onRepeatButtonClick?.();
+      break;
+    case "shuffle":
+      playerBar()?.queue?.shuffle?.();
+      break;
+    case "like":
+      likeCurrent(cmd.status);
+      break;
+    case "queuePlay":
+      queueElement()?.dispatch({ type: "SET_INDEX", payload: cmd.index });
+      break;
+    case "queueMove":
+      queueElement()?.dispatch({ type: "MOVE_ITEM", payload: { fromIndex: cmd.from, toIndex: cmd.to } });
+      break;
+    case "queueRemove":
+      queueElement()?.dispatch({ type: "REMOVE_ITEM", payload: cmd.index });
+      break;
+    case "queueAdd":
+      await addToQueue(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.next);
       break;
   }
   onChange();
 }
 
-function isCurrent(videoId: string): boolean {
-  return ytPlayer()?.getVideoData()?.video_id === videoId;
+function currentVideoId(): string | undefined {
+  return ytPlayer()?.getVideoData()?.video_id || undefined;
 }
 
 /**
- * Phase 0 tries, in order:
- * 1. Internal SPA navigation (keeps YouTube Music's queue and radio, no reload).
- * 2. Loading the video straight into the player (no reload, but bypasses the queue).
- * 3. Full navigation to /watch (reloads the page; relies on autoplay).
+ * Starts playback the way YouTube Music's own links do (SPA navigation), so its queue, radio
+ * and autoplay keep working. Falls back to loading the video directly, then to a full reload.
  */
-async function playVideo(videoId: string, playlistId?: string): Promise<void> {
-  const watchEndpoint = playlistId ? { videoId, playlistId } : { videoId };
-  ytmApp()?.dispatchEvent(
-    new CustomEvent("yt-navigate", {
-      bubbles: true,
-      composed: true,
-      detail: { endpoint: { watchEndpoint } },
-    }),
-  );
-  if (await waitFor(() => isCurrent(videoId), 4000)) {
-    return reportMethod("SPA navigation (yt-navigate)");
-  }
+async function watch(videoId?: string, playlistId?: string, params?: string): Promise<void> {
+  const before = currentVideoId();
+  const target = Object.fromEntries(Object.entries({ videoId, playlistId, params }).filter(([, v]) => v));
+  const endpoint = videoId ? { watchEndpoint: target } : { watchPlaylistEndpoint: target };
+  ytmApp()?.dispatchEvent(new CustomEvent("yt-navigate", { bubbles: true, composed: true, detail: { endpoint } }));
+
+  const started = () => {
+    const now = currentVideoId();
+    return videoId ? now === videoId : Boolean(now) && now !== before;
+  };
+  if (await waitFor(started, 5000)) return;
 
   const player = ytPlayer();
-  if (player?.loadVideoById) {
+  if (videoId && player?.loadVideoById) {
+    log("warn", "SPA navigation did not start playback; loading the video directly");
     player.loadVideoById(videoId);
-    if (await waitFor(() => isCurrent(videoId), 4000)) {
-      return reportMethod("loadVideoById (outside the queue)");
-    }
+    if (await waitFor(started, 4000)) return;
   }
 
-  reportMethod("/watch reload");
-  const params = new URLSearchParams({ v: videoId });
-  if (playlistId) params.set("list", playlistId);
-  location.assign(`/watch?${params}`);
+  log("warn", "Falling back to reloading /watch");
+  const query = new URLSearchParams();
+  if (videoId) query.set("v", videoId);
+  if (playlistId) query.set("list", playlistId);
+  location.assign(`/watch?${query}`);
 }
 
-function reportMethod(method: string): void {
-  log(method.startsWith("SPA") ? "info" : "warn", `Playback started with: ${method}`);
+/** Uses the player bar's like button, which also tells YouTube Music. */
+function likeCurrent(status: "LIKE" | "DISLIKE" | "INDIFFERENT"): void {
+  const button = document.querySelector("#like-button-renderer") as
+    | (HTMLElement & { updateLikeStatus?(status: string): void })
+    | null;
+  if (button?.updateLikeStatus) button.updateLikeStatus(status);
+  else log("warn", "Like button not found");
+}
+
+/**
+ * Asks YouTube Music for the queue entries of a track or list and inserts them the same way its
+ * own "Play next" / "Add to queue" menu items do.
+ */
+async function addToQueue(videoId: string | undefined, playlistId: string | undefined, next: boolean): Promise<void> {
+  const queue = queueElement();
+  const state = pageStore()?.getState().queue;
+  if (!queue || !state?.items?.length) {
+    // Nothing is playing yet: just play it.
+    return watch(videoId, playlistId);
+  }
+
+  const response = (await innertube("music/get_queue", {
+    queueContextParams: state.queueContextParams,
+    queueInsertPosition: next ? "INSERT_AFTER_CURRENT_VIDEO" : "INSERT_AT_END",
+    ...(videoId ? { videoIds: [videoId] } : { playlistId }),
+  })) as { queueDatas?: { content?: unknown }[] };
+
+  const items = (response.queueDatas ?? []).map((d) => d.content).filter(Boolean);
+  if (!items.length) return log("warn", "YouTube Music returned nothing to add to the queue");
+
+  const length = state.items.length;
+  const current = state.selectedItemIndex ?? -1;
+  queue.dispatch({
+    type: "ADD_ITEMS",
+    payload: {
+      nextQueueItemId: state.nextQueueItemId,
+      index: next && current >= 0 ? current + 1 : length,
+      items,
+      shuffleEnabled: false,
+      shouldAssignIds: true,
+    },
+  });
 }

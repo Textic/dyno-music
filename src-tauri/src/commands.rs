@@ -6,12 +6,21 @@ use tauri::{AppHandle, Manager, State};
 
 use crate::auth;
 use crate::player::{self, PLAYER_LABEL};
-use crate::state::{Hub, PlayerState, SessionInfo};
+use crate::state::{Hub, LikeStatus, PlayerState, SessionInfo};
 
 const API_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// InnerTube endpoints the UI may reach through the bridge.
-const ALLOWED_ENDPOINTS: &[&str] = &["search", "browse", "next", "music/get_search_suggestions"];
+const ALLOWED_ENDPOINTS: &[&str] = &[
+    "search",
+    "browse",
+    "next",
+    "music/get_search_suggestions",
+    "like/like",
+    "like/dislike",
+    "like/removelike",
+    "browse/edit_playlist",
+];
 
 /// Mirrors `PlayerCommand` in src/shared/types.ts.
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,7 +33,22 @@ pub enum PlayerCommand {
     Previous,
     Seek { position_sec: f64 },
     Volume { value: f64 },
-    PlayVideo { video_id: String, playlist_id: Option<String> },
+    Watch {
+        video_id: Option<String>,
+        playlist_id: Option<String>,
+        params: Option<String>,
+    },
+    Repeat,
+    Shuffle,
+    Like { status: LikeStatus },
+    QueuePlay { index: u32 },
+    QueueMove { from: u32, to: u32 },
+    QueueRemove { index: u32 },
+    QueueAdd {
+        video_id: Option<String>,
+        playlist_id: Option<String>,
+        next: bool,
+    },
 }
 
 #[tauri::command]
@@ -93,6 +117,7 @@ pub fn hide_player(app: AppHandle) -> Result<(), String> {
 pub struct Snapshot {
     session: Option<SessionInfo>,
     state: PlayerState,
+    queue: Value,
 }
 
 /// Current state for a window that has just loaded and missed earlier events.
@@ -101,5 +126,6 @@ pub fn get_snapshot(hub: State<'_, Hub>) -> Snapshot {
     Snapshot {
         session: hub.session.lock().unwrap().clone(),
         state: hub.player.lock().unwrap().clone(),
+        queue: hub.queue.lock().unwrap().clone(),
     }
 }
