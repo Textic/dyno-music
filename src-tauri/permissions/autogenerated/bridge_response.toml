@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-bridge-response"
+description = "Enables the bridge_response command without any pre-configured scope."
+commands.allow = ["bridge_response"]
+
+[[permission]]
+identifier = "deny-bridge-response"
+description = "Denies the bridge_response command without any pre-configured scope."
+commands.deny = ["bridge_response"]

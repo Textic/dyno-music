@@ -1,0 +1,21 @@
+{
+  "name": "dyno-music",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:bridge && vite",
+    "build": "tsc && npm run build:bridge && vite build",
+    "build:bridge": "vite build --config vite.bridge.config.ts",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "vite": "^8.0.16",
+    "typescript": "~6.0.3"
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dyno Music</title>
+    <link rel="stylesheet" href="/src/main/styles.css" />
+    <script type="module" src="/src/main/index.ts"></script>
+  </head>
+
+  <body>
+    <header class="topbar">
+      <h1>Dyno Music</h1>
+      <span class="badge" id="session-badge">Loading YouTube Music…</span>
+      <div class="actions">
+        <button id="btn-login" hidden>Sign in</button>
+        <button id="btn-show-player">Show YouTube Music</button>
+        <button id="btn-hide-player">Hide</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <form id="search-form" class="search">
+          <input id="search-input" type="search" placeholder="Search songs…" autocomplete="off" />
+          <button type="submit">Search</button>
+        </form>
+        <p class="hint" id="search-status"></p>
+        <ul id="results" class="results"></ul>
+      </section>
+
+      <aside class="panel diag">
+        <h2>Diagnostics · phase 0</h2>
+        <dl>
+          <dt>Page visibility</dt>
+          <dd id="diag-visibility">—</dd>
+          <dt>Max timer gap (expected ≈1000 ms)</dt>
+          <dd id="diag-max-gap">—</dd>
+          <dt>Average timer gap</dt>
+          <dd id="diag-avg-gap">—</dd>
+          <dt>Is playback advancing?</dt>
+          <dd id="diag-advancing">—</dd>
+          <dt>Playback method</dt>
+          <dd id="diag-method">—</dd>
+          <dt>User agent</dt>
+          <dd id="diag-ua" class="small">—</dd>
+        </dl>
+        <h3>Bridge log</h3>
+        <ol id="log" class="log"></ol>
+      </aside>
+    </main>
+
+    <footer class="player-bar">
+      <img id="np-cover" class="cover" alt="" />
+      <div class="now-playing">
+        <strong id="np-title">Nothing playing</strong>
+        <span id="np-artist"></span>
+      </div>
+      <div class="controls">
+        <button id="btn-prev" aria-label="Previous" title="Previous">⏮</button>
+        <button id="btn-toggle" class="primary" aria-label="Play" title="Play/Pause">▶</button>
+        <button id="btn-next" aria-label="Next" title="Next">⏭</button>
+      </div>
+      <div class="seek">
+        <span id="np-pos">0:00</span>
+        <input id="seek" type="range" min="0" max="0" step="1" value="0" aria-label="Position" />
+        <span id="np-dur">0:00</span>
+      </div>
+      <label class="volume">
+        Vol
+        <input id="volume" type="range" min="0" max="100" step="1" value="100" aria-label="Volume" />
+      </label>
+    </footer>
+  </body>
+</html>
