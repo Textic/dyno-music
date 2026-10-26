@@ -119,8 +119,9 @@ pub fn show_player(app: AppHandle) -> Result<(), String> {
 }
 
 /// Swaps the main window for the mini player.
+/// Async because creating a window from a sync command deadlocks the main thread on Windows.
 #[tauri::command]
-pub fn open_mini_player(app: AppHandle) -> Result<(), String> {
+pub async fn open_mini_player(app: AppHandle) -> Result<(), String> {
     crate::mini::open(&app).map_err(|e| e.to_string())
 }
 
