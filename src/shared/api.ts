@@ -12,8 +12,10 @@ export const playerCmd = (cmd: PlayerCommand) => invoke<void>("player_cmd", { cm
 export const ytmApi = <T = unknown>(endpoint: string, body: Record<string, unknown>) =>
   invoke<T>("ytm_api", { endpoint, body });
 
-/** With `login`, the window hides itself again once the user has signed in. */
-export const showPlayer = (login = false) => invoke<void>("show_player", { login });
+/** Opens Google's sign-in; resolves once signed in, rejects if cancelled or timed out. */
+export const signIn = () => invoke<void>("sign_in");
+
+export const showPlayer = () => invoke<void>("show_player");
 
 export const hidePlayer = () => invoke<void>("hide_player");
 

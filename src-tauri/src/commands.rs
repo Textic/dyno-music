@@ -1,10 +1,10 @@
-use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use tauri::{AppHandle, Manager, State};
 
+use crate::auth;
 use crate::player::{self, PLAYER_LABEL};
 use crate::state::{Hub, PlayerState, SessionInfo};
 
@@ -64,20 +64,24 @@ pub async fn ytm_api(
     }
 }
 
-/// Shows the YouTube Music window. With `login`, it hides itself again once the user signs in.
+/// Opens Google's sign-in in the player window; resolves once signed in, fails if cancelled.
 #[tauri::command]
-pub fn show_player(app: AppHandle, hub: State<'_, Hub>, login: bool) -> Result<(), String> {
+pub async fn sign_in(app: AppHandle, hub: State<'_, Hub>) -> Result<(), String> {
+    auth::sign_in(&app, &hub).await
+}
+
+/// Shows the YouTube Music window (debugging).
+#[tauri::command]
+pub fn show_player(app: AppHandle) -> Result<(), String> {
     let window = app
         .get_webview_window(PLAYER_LABEL)
         .ok_or("the player window does not exist")?;
-    hub.login_pending.store(login, Ordering::SeqCst);
     window.show().map_err(|e| e.to_string())?;
     window.set_focus().map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn hide_player(app: AppHandle, hub: State<'_, Hub>) -> Result<(), String> {
-    hub.login_pending.store(false, Ordering::SeqCst);
+pub fn hide_player(app: AppHandle) -> Result<(), String> {
     let window = app
         .get_webview_window(PLAYER_LABEL)
         .ok_or("the player window does not exist")?;

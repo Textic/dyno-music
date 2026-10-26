@@ -1,26 +1,33 @@
 //! Commands called by the script injected into music.youtube.com (src/bridge).
 //! Only these are allowed for the remote origin (capabilities/ytm-remote.json).
 
-use std::sync::atomic::Ordering;
-
 use serde_json::{json, Value};
 use tauri::{AppHandle, Emitter, Manager, State};
 
+use crate::auth;
 use crate::player::PLAYER_LABEL;
 use crate::state::{Hub, PlayerState, SessionInfo};
 
 const UI_WINDOW: &str = "main";
 
+/// Async because reading cookies deadlocks on the main thread on Windows.
 #[tauri::command]
-pub fn bridge_ready(app: AppHandle, hub: State<'_, Hub>, session: SessionInfo) {
-    eprintln!("[bridge] ready: signed in = {}, {}", session.logged_in, session.url);
-    if session.logged_in && hub.login_pending.swap(false, Ordering::SeqCst) {
-        if let Some(window) = app.get_webview_window(PLAYER_LABEL) {
-            let _ = window.hide();
+pub async fn bridge_ready(
+    app: AppHandle,
+    hub: State<'_, Hub>,
+    mut session: SessionInfo,
+) -> Result<(), String> {
+    // The session cookies are the source of truth; the page's own flag is only a fallback.
+    if let Some(window) = app.get_webview_window(PLAYER_LABEL) {
+        match auth::has_session_cookie(&window) {
+            Ok(signed_in) => session.logged_in = signed_in,
+            Err(err) => eprintln!("[bridge] could not read cookies: {err}"),
         }
     }
+    eprintln!("[bridge] ready: signed in = {}, {}", session.logged_in, session.url);
     let _ = app.emit_to(UI_WINDOW, "player://session", &session);
     *hub.session.lock().unwrap() = Some(session);
+    Ok(())
 }
 
 #[tauri::command]

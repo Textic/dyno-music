@@ -38,6 +38,20 @@ function renderSession(session: SessionInfo | null): void {
   }
 }
 
+async function signIn(): Promise<void> {
+  const badge = $("session-badge");
+  badge.textContent = "Signing in…";
+  badge.dataset.kind = "pending";
+  try {
+    await api.signIn();
+    // The reloaded page reports the new session through player://session.
+    addLog({ level: "info", message: "Signed in" });
+  } catch (err) {
+    addLog({ level: "warn", message: `Sign-in: ${err}` });
+    renderSession((await api.getSnapshot()).session);
+  }
+}
+
 // --- Player state --------------------------------------------------------------
 
 function currentPosition(): number {
@@ -142,7 +156,7 @@ function bindControls(): void {
     const query = $<HTMLInputElement>("search-input").value.trim();
     if (query) void search(query);
   });
-  $("btn-login").addEventListener("click", () => api.showPlayer(true).catch(reportError));
+  $("btn-login").addEventListener("click", () => void signIn());
   $("btn-show-player").addEventListener("click", () => api.showPlayer().catch(reportError));
   $("btn-hide-player").addEventListener("click", () => api.hidePlayer().catch(reportError));
   $("btn-toggle").addEventListener("click", () => api.playerCmd({ type: "toggle" }).catch(reportError));

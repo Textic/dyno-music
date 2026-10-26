@@ -6,6 +6,7 @@ fn main() {
             // UI (main window)
             "player_cmd",
             "ytm_api",
+            "sign_in",
             "show_player",
             "hide_player",
             "get_snapshot",

@@ -3,7 +3,7 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder}
 
 pub const PLAYER_LABEL: &str = "player";
 
-const YTM_URL: &str = "https://music.youtube.com/";
+pub const YTM_URL: &str = "https://music.youtube.com/";
 
 /// Built by `npm run build:bridge` (see vite.bridge.config.ts).
 const BRIDGE_JS: &str = include_str!("../../dist-bridge/bridge.js");

@@ -65,8 +65,8 @@ pub struct Hub {
     pub player: Mutex<PlayerState>,
     /// `None` until the bridge reports that music.youtube.com finished loading.
     pub session: Mutex<Option<SessionInfo>>,
-    /// Set while the player window is shown for Google sign-in; it hides again once signed in.
-    pub login_pending: AtomicBool,
+    /// Set while the player window is showing Google's sign-in (see auth.rs).
+    pub signing_in: AtomicBool,
     next_id: AtomicU64,
     pending: Mutex<HashMap<u64, oneshot::Sender<ApiResult>>>,
 }

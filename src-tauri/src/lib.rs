@@ -1,3 +1,4 @@
+mod auth;
 mod bridge;
 mod commands;
 mod player;
@@ -12,6 +13,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::player_cmd,
             commands::ytm_api,
+            commands::sign_in,
             commands::show_player,
             commands::hide_player,
             commands::get_snapshot,
