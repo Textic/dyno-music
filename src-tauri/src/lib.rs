@@ -17,6 +17,7 @@ pub fn run() {
             commands::show_player,
             commands::hide_player,
             commands::get_snapshot,
+            commands::ui_log,
             bridge::bridge_ready,
             bridge::bridge_state,
             bridge::bridge_queue,

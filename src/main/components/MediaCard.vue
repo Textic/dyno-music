@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Music, Play } from "lucide-vue-next";
+import { Play } from "lucide-vue-next";
 import { computed } from "vue";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { useOpenItem } from "@/main/composables/useMedia";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
@@ -25,14 +26,7 @@ const isCurrent = computed(() => Boolean(props.item.videoId) && player.track?.vi
       :aria-label="`Open ${item.title}`"
       @click="open(item)"
     >
-      <img
-        v-if="item.thumbnail"
-        :src="item.thumbnail"
-        alt=""
-        loading="lazy"
-        class="size-full object-cover transition duration-500 group-hover:scale-105"
-      />
-      <Music v-else class="absolute inset-0 m-auto size-8 text-ink-faint" />
+      <CoverImage :src="item.thumbnail" lazy class="transition duration-500 group-hover:scale-105" />
       <span
         v-if="playable"
         class="absolute right-2.5 bottom-2.5 grid size-11 translate-y-2 place-items-center rounded-full bg-accent text-ink opacity-0 shadow-xl shadow-black/50 transition group-hover:translate-y-0 group-hover:opacity-100 hover:scale-105"

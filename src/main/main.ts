@@ -10,3 +10,4 @@ app.mount("#app");
 
 const player = usePlayerStore();
 player.start().catch((err) => player.log({ level: "error", message: String(err) }));
+

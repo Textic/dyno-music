@@ -10,6 +10,7 @@
     "allow-sign-in",
     "allow-show-player",
     "allow-hide-player",
-    "allow-get-snapshot"
+    "allow-get-snapshot",
+    "allow-ui-log"
   ]
 }

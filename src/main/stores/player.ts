@@ -31,9 +31,10 @@ export const usePlayerStore = defineStore("player", () => {
     stateReceivedAt.value = performance.now();
   }
 
-  /** Bridge and UI messages; visible in the devtools console. */
+  /** UI messages go to the devtools console and the `tauri dev` terminal. */
   function log({ level, message }: LogEntry): void {
     console[level](`[dyno] ${message}`);
+    api.uiLog(level, message).catch(() => {});
   }
 
   /** Sends a command, logging failures instead of throwing at the caller. */
@@ -53,7 +54,7 @@ export const usePlayerStore = defineStore("player", () => {
       api.onSession((next) => (session.value = next)),
       api.onState(setState),
       api.onQueue((next) => (queue.value = next)),
-      api.onLog(log),
+      api.onLog((entry) => console[entry.level](`[dyno bridge] ${entry.message}`)),
     ]);
     const snapshot = await api.getSnapshot();
     session.value = snapshot.session;

@@ -7,7 +7,7 @@ import { log, send } from "./ipc";
 import { runCommand } from "./player";
 import { startHousekeeping } from "./housekeeping";
 import { startQueueWatcher, startStateWatcher } from "./state";
-import { waitFor, ytcfg, ytmApp } from "./ytm";
+import { preferEnglish, waitFor, ytcfg, ytmApp } from "./ytm";
 
 interface DynoBridge {
   command(cmd: PlayerCommand): void;
@@ -23,6 +23,7 @@ declare global {
 async function boot(): Promise<void> {
   // ytcfg and <ytmusic-app> exist once YouTube Music's own scripts have run.
   await waitFor(() => window.ytcfg !== undefined && ytmApp() !== null, 60_000, 250);
+  preferEnglish();
   await send("bridge_ready", {
     session: { loggedIn: ytcfg("LOGGED_IN") === true, url: location.href },
   });

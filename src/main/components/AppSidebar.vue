@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { House, Library, ListMusic, LogIn, Search } from "lucide-vue-next";
+import { House, Library, LogIn, Search } from "lucide-vue-next";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { browseRoute } from "@/main/composables/useMedia";
 import { useLibraryStore } from "@/main/stores/library";
 import { usePlayerStore } from "@/main/stores/player";
@@ -50,8 +51,9 @@ const links = [
             class="flex items-center gap-3 rounded-xl px-2 py-1.5 transition hover:bg-white/5"
             active-class="!bg-white/10"
           >
-            <img v-if="playlist.thumbnail" :src="playlist.thumbnail" alt="" loading="lazy" class="size-9 rounded-lg object-cover" />
-            <ListMusic v-else class="size-9 rounded-lg bg-white/5 p-2 text-ink-faint" />
+            <span class="size-9 shrink-0 overflow-hidden rounded-lg bg-white/5">
+              <CoverImage :src="playlist.thumbnail" lazy />
+            </span>
             <span class="min-w-0">
               <span class="block truncate text-sm">{{ playlist.title }}</span>
               <span class="block truncate text-[11px] text-ink-faint">{{ playlist.subtitle }}</span>

@@ -19,12 +19,23 @@ export interface YtPlayer {
 
 declare global {
   interface Window {
-    ytcfg?: { get(key: string): unknown };
+    ytcfg?: { get(key: string): unknown; set?(key: string, value: unknown): void };
   }
 }
 
 export function ytcfg(key: string): unknown {
   return window.ytcfg?.get?.(key);
+}
+
+/**
+ * YouTube Music answers in the account's language, but the app is in English. Its own client
+ * reads the language from this config on every request (an `hl` URL parameter is ignored for
+ * signed-in accounts), so switching it here makes shelf titles, "Song", "Single"... English.
+ */
+export function preferEnglish(): void {
+  const context = ytcfg("INNERTUBE_CONTEXT") as { client?: { hl?: string } } | undefined;
+  if (context?.client) context.client.hl = "en";
+  window.ytcfg?.set?.("HL", "en");
 }
 
 export function ytPlayer(): YtPlayer | null {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ListMusic, X } from "lucide-vue-next";
+import { X } from "lucide-vue-next";
 import { ref, watch } from "vue";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { addToPlaylist } from "@/main/services/music";
 import { useLibraryStore } from "@/main/stores/library";
 import { useUiStore } from "@/main/stores/ui";
@@ -77,8 +78,9 @@ async function choose(playlist: MediaItem): Promise<void> {
                 :disabled="saving !== null"
                 @click="choose(playlist)"
               >
-                <img v-if="playlist.thumbnail" :src="playlist.thumbnail" alt="" class="size-10 rounded-lg object-cover" />
-                <ListMusic v-else class="size-10 rounded-lg bg-white/5 p-2.5 text-ink-faint" />
+                <span class="size-10 shrink-0 overflow-hidden rounded-lg bg-white/5">
+                  <CoverImage :src="playlist.thumbnail" />
+                </span>
                 <span class="min-w-0">
                   <span class="block truncate text-sm font-medium">{{ playlist.title }}</span>
                   <span class="block truncate text-xs text-ink-faint">{{ playlist.subtitle }}</span>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ListMusic,
-  Music,
   Pause,
   Play,
   Repeat,
@@ -15,6 +14,7 @@ import {
   VolumeX,
 } from "lucide-vue-next";
 import { computed, ref } from "vue";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { formatTime, usePlaybackPosition } from "@/main/composables/usePlaybackPosition";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
@@ -59,8 +59,7 @@ const iconButton =
   >
     <div class="flex min-w-0 flex-1 items-center gap-3">
       <div class="relative size-14 shrink-0 overflow-hidden rounded-xl bg-white/5">
-        <img v-if="player.track?.thumbnail" :src="player.track.thumbnail" alt="" class="size-full object-cover" />
-        <Music v-else class="absolute inset-0 m-auto size-6 text-ink-faint" />
+        <CoverImage :src="player.track?.thumbnail" />
       </div>
       <div class="min-w-0">
         <p class="truncate text-sm font-semibold">

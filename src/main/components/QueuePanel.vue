@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { GripVertical, Music, X } from "lucide-vue-next";
+import { GripVertical, X } from "lucide-vue-next";
 import { nextTick, ref, watch } from "vue";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
 
@@ -75,8 +76,7 @@ watch(
             :aria-label="`Play ${entry.title}`"
             @click="player.queuePlay(entry.index)"
           >
-            <img v-if="entry.thumbnail" :src="entry.thumbnail" alt="" loading="lazy" class="size-full object-cover" />
-            <Music v-else class="absolute inset-0 m-auto size-4 text-ink-faint" />
+            <CoverImage :src="entry.thumbnail" lazy />
           </button>
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium" :class="entry.selected && 'text-accent-soft'">{{ entry.title }}</p>

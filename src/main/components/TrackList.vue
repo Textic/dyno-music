@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Ellipsis, Music, Play } from "lucide-vue-next";
+import { Ellipsis, Play } from "lucide-vue-next";
 import ArtistLinks from "@/main/components/ArtistLinks.vue";
+import CoverImage from "@/main/components/CoverImage.vue";
 import { browseRoute, useOpenItem } from "@/main/composables/useMedia";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
@@ -58,8 +59,7 @@ function activate(item: MediaItem): void {
           :aria-label="item.videoId ? `Play ${item.title}` : `Open ${item.title}`"
           @click="activate(item)"
         >
-          <img v-if="item.thumbnail" :src="item.thumbnail" alt="" loading="lazy" class="size-full object-cover" />
-          <Music v-else class="absolute inset-0 m-auto size-5 text-ink-faint" />
+          <CoverImage :src="item.thumbnail" lazy />
           <span
             v-if="item.videoId"
             class="absolute inset-0 grid place-items-center bg-black/50 opacity-0 transition group-hover:opacity-100"

@@ -120,6 +120,12 @@ pub struct Snapshot {
     queue: Value,
 }
 
+/// UI messages, printed next to the bridge's so `tauri dev` shows both.
+#[tauri::command]
+pub fn ui_log(level: String, message: String) {
+    eprintln!("[ui:{level}] {message}");
+}
+
 /// Current state for a window that has just loaded and missed earlier events.
 #[tauri::command]
 pub fn get_snapshot(hub: State<'_, Hub>) -> Snapshot {

@@ -24,6 +24,8 @@ export const hidePlayer = () => invoke<void>("hide_player");
 
 export const getSnapshot = () => invoke<Snapshot>("get_snapshot");
 
+export const uiLog = (level: LogEntry["level"], message: string) => invoke<void>("ui_log", { level, message });
+
 const on =
   <T>(event: string) =>
   (callback: (payload: T) => void): Promise<UnlistenFn> =>
