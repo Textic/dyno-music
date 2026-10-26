@@ -44,8 +44,28 @@ function onSeekChange(event: Event): void {
   void player.seek(Number((event.target as HTMLInputElement).value));
 }
 
+/**
+ * Same idea for the volume: the island redraws every frame while playing, and each redraw would
+ * put the slider back to the last reported volume, fighting the drag.
+ */
+const volumeDrag = ref<number | null>(null);
+const shownVolume = computed(() => volumeDrag.value ?? Math.round(player.state.volume));
+const VOLUME_SEND_EVERY_MS = 80;
+let lastVolumeSent = 0;
+
+function onVolumeInput(event: Event): void {
+  volumeDrag.value = Number((event.target as HTMLInputElement).value);
+  // Apply it while dragging too, without flooding the player.
+  const now = performance.now();
+  if (now - lastVolumeSent >= VOLUME_SEND_EVERY_MS) {
+    lastVolumeSent = now;
+    void player.setVolume(volumeDrag.value);
+  }
+}
+
 function onVolumeChange(event: Event): void {
-  void player.setVolume(Number((event.target as HTMLInputElement).value));
+  const value = Number((event.target as HTMLInputElement).value);
+  void player.setVolume(value).finally(() => (volumeDrag.value = null));
 }
 
 const iconButton =
@@ -158,16 +178,17 @@ const iconButton =
         <ListMusic class="size-[18px]" />
       </button>
       <div class="hidden items-center gap-2 lg:flex">
-        <VolumeX v-if="player.state.muted || player.state.volume === 0" class="size-[18px]" />
+        <VolumeX v-if="player.state.muted || shownVolume === 0" class="size-[18px]" />
         <Volume2 v-else class="size-[18px]" />
         <input
           type="range"
           min="0"
           max="100"
           step="1"
-          :value="Math.round(player.state.volume)"
+          :value="shownVolume"
           aria-label="Volume"
           class="w-24"
+          @input="onVolumeInput"
           @change="onVolumeChange"
         />
       </div>
