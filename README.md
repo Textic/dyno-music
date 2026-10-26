@@ -4,7 +4,7 @@ A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.ap
 
 ## Why this exists
 
-Dyno Music is a personal project. I built it for myself, so it follows my own needs and taste rather than trying to fit everyone: a clean, distraction-free way to listen to music that also looks good. Features get added when I want them, and the design choices are mine. You're welcome to use it, fork it or borrow ideas from it, but expect it to stay opinionated.
+Dyno Music is a personal project. I built it for myself, so it follows my own needs and taste rather than trying to fit everyone: a clean, distraction-free way to listen to music that also looks good. Features get added when I need them, though I'm also open to the occasional idea from outside, and the design choices are mine. You're welcome to use it, fork it or borrow ideas from it, but expect it to stay opinionated.
 
 ## How it works
 
