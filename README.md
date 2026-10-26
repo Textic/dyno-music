@@ -1,6 +1,6 @@
 # Dyno Music
 
-A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
+A lightweight, unofficial YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
 
 ## Why this exists
 

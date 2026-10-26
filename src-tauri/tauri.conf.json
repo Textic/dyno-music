@@ -40,7 +40,7 @@
     ],
     "createUpdaterArtifacts": true,
     "category": "Music",
-    "shortDescription": "A lightweight YouTube Music desktop client",
+    "shortDescription": "A lightweight, unofficial YouTube Music desktop client",
     "longDescription": "Dyno Music is an unofficial, personal YouTube Music client with its own interface, built with Tauri.",
     "publisher": "Textic",
     "homepage": "https://github.com/Textic/dyno-music"

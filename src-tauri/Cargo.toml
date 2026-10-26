@@ -1,7 +1,7 @@
 [package]
 name = "dyno-music"
 version = "0.3.0"
-description = "YouTube Music desktop client"
+description = "Unofficial YouTube Music desktop client"
 authors = ["you"]
 edition = "2024"
 
