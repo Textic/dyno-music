@@ -132,32 +132,60 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
         </div>
       </div>
 
-      <aside v-if="showQueue" class="relative hidden w-80 shrink-0 flex-col border-l border-white/10 bg-black/25 lg:flex xl:w-96" aria-label="Up next">
-        <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">Up next</h2>
-        <EmptyState v-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
-        <ol ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
-          <li
-            v-for="entry in upNext"
-            :key="`${entry.index}-${entry.videoId}`"
-            class="group flex items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.07]"
-            :class="entry.selected && 'bg-white/10'"
-            @dblclick="player.queuePlay(entry.index)"
-          >
-            <button
-              class="relative size-11 shrink-0 overflow-hidden rounded-lg bg-white/5"
-              :aria-label="`Play ${entry.title}`"
-              @click="player.queuePlay(entry.index)"
+      <!-- Kept mounted on wide screens so opening and closing can animate its width: the artwork
+           and controls glide to their new centre instead of jumping. -->
+      <aside
+        class="relative hidden shrink-0 overflow-hidden border-l bg-black/25 transition-[width,opacity,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block"
+        :class="showQueue ? 'w-80 border-white/10 opacity-100 xl:w-96' : 'w-0 border-transparent opacity-0'"
+        :inert="!showQueue"
+        :aria-hidden="!showQueue"
+        aria-label="Up next"
+      >
+        <div
+          class="flex h-full w-80 flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-96"
+          :class="showQueue ? 'translate-x-0' : 'translate-x-10'"
+        >
+          <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">Up next</h2>
+          <EmptyState v-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
+          <!-- Re-created on every opening so the songs cascade in again. -->
+          <ol v-if="showQueue" ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
+            <li
+              v-for="(entry, i) in upNext"
+              :key="`${entry.index}-${entry.videoId}`"
+              class="queue-item group flex items-center gap-3 rounded-xl px-3 py-2 transition hover:bg-white/[0.07]"
+              :class="entry.selected && 'bg-white/10'"
+              :style="{ animationDelay: `${Math.min(i, 12) * 35}ms` }"
+              @dblclick="player.queuePlay(entry.index)"
             >
-              <CoverImage :src="entry.thumbnail" lazy />
-            </button>
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium" :class="entry.selected && 'text-accent-soft'">{{ entry.title }}</p>
-              <p class="truncate text-xs text-ink-faint">{{ entry.artists }}</p>
-            </div>
-            <span class="text-[11px] text-ink-faint tabular-nums">{{ entry.duration }}</span>
-          </li>
-        </ol>
+              <button
+                class="relative size-11 shrink-0 overflow-hidden rounded-lg bg-white/5"
+                :aria-label="`Play ${entry.title}`"
+                @click="player.queuePlay(entry.index)"
+              >
+                <CoverImage :src="entry.thumbnail" lazy />
+              </button>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-medium" :class="entry.selected && 'text-accent-soft'">{{ entry.title }}</p>
+                <p class="truncate text-xs text-ink-faint">{{ entry.artists }}</p>
+              </div>
+              <span class="text-[11px] text-ink-faint tabular-nums">{{ entry.duration }}</span>
+            </li>
+          </ol>
+        </div>
       </aside>
     </section>
   </Transition>
 </template>
+
+<style scoped>
+.queue-item {
+  animation: queue-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes queue-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+</style>
