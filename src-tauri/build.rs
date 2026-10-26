@@ -1,4 +1,8 @@
 fn main() {
+    // The app icon is compiled into the executable; without this, regenerated icons are only
+    // picked up after a clean build.
+    println!("cargo:rerun-if-changed=icons");
+
     // Listing the app commands generates `allow-<command>` permissions, so each
     // capability file decides exactly which commands a window may call.
     tauri_build::try_build(tauri_build::Attributes::new().app_manifest(
