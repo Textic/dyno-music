@@ -36,7 +36,8 @@ Roadmap for Dyno Music. Suggested order: the **Essentials** first (the app is no
 - [x] **Tray icon**, and closing to the tray without stopping the music
 - [x] **Media keys** and the system media panel (Windows SMTC, macOS Now Playing, Linux MPRIS)
 - [ ] **Discord Rich Presence**: "Listening to…" with artwork and progress
-- [ ] **Single instance**, remember window size and position, launch at login, configurable shortcuts
+- [x] **Single instance**, remember window size and position, launch at login
+- [ ] **Configurable shortcuts**, global ones too (e.g. play/pause from any app)
 
 ## Settings and extras
 
