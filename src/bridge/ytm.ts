@@ -98,6 +98,8 @@ export function pageStore() {
 /** <ytmusic-player-bar> exposes the same handlers its buttons use. */
 export interface PlayerBarElement extends HTMLElement {
   onRepeatButtonClick?(): void;
+  /** Same as moving YouTube Music's own volume slider. */
+  updateVolume?(volume: number): void;
   queue?: { shuffle?(): void };
 }
 
