@@ -26,7 +26,7 @@ Roadmap for Dyno Music. Suggested order: the **Essentials** first (the app is no
 - [x] **Full-screen "Now playing" view**: the player island expands, with large artwork
 - [ ] **Per-song colour**: the app's accent follows the artwork's colours
 - [ ] **Synced lyrics**, line by line, in the "Now playing" view
-- [ ] **Mini player**: the island floating on its own outside the window, always on top
+- [x] **Mini player**: the island floating on its own outside the window, always on top (from the player island or the tray)
 - [x] **Custom title bar**, without the standard window frame
 - [x] **Dyno identity**: an original logo or character for empty and loading screens
 - [ ] **Light theme** and a **reduced-motion** mode

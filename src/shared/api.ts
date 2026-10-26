@@ -29,6 +29,12 @@ export const showPlayer = () => invoke<void>("show_player");
 
 export const hidePlayer = () => invoke<void>("hide_player");
 
+/** Swaps the main window for the always-on-top mini player. */
+export const openMiniPlayer = () => invoke<void>("open_mini_player");
+
+/** Closes the mini player and brings the main window back. */
+export const closeMiniPlayer = () => invoke<void>("close_mini_player");
+
 export const getSnapshot = () => invoke<Snapshot>("get_snapshot");
 
 export const uiLog = (level: LogEntry["level"], message: string) => invoke<void>("ui_log", { level, message });

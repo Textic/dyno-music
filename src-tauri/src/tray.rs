@@ -1,4 +1,4 @@
-//! System tray icon: playback controls, show the window, quit.
+//! System tray icon: playback controls, show the window or the mini player, quit.
 
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent};
@@ -28,6 +28,12 @@ fn on_menu(app: &AppHandle, id: &str) {
         "next" => PlayerCommand::Next,
         "previous" => PlayerCommand::Previous,
         "show" => return show_main_window(app),
+        "mini" => {
+            if let Err(err) = crate::mini::open(app) {
+                eprintln!("[tray] could not open the mini player: {err}");
+            }
+            return;
+        }
         "quit" => return app.exit(0),
         _ => return,
     };
@@ -41,9 +47,10 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
     let previous = MenuItem::with_id(app, "previous", "Previous", true, None::<&str>)?;
     let next = MenuItem::with_id(app, "next", "Next", true, None::<&str>)?;
     let show = MenuItem::with_id(app, "show", "Show Dyno Music", true, None::<&str>)?;
+    let mini = MenuItem::with_id(app, "mini", "Mini player", true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let separator = PredefinedMenuItem::separator(app)?;
-    let menu = Menu::with_items(app, &[&toggle, &previous, &next, &separator, &show, &quit])?;
+    let menu = Menu::with_items(app, &[&toggle, &previous, &next, &separator, &show, &mini, &quit])?;
 
     let mut builder = TrayIconBuilder::with_id("main")
         .tooltip("Dyno Music")

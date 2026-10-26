@@ -13,7 +13,7 @@ const BRIDGE_JS: &str = include_str!("../../dist-bridge/bridge.js");
 /// - HardwareMediaKeyHandling off: media keys and the system media panel will be ours (phase 3).
 /// - Autoplay without a user gesture: the hidden page never receives clicks.
 #[cfg(windows)]
-const WEBVIEW2_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required";
+pub const WEBVIEW2_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required";
 
 /// Google may refuse to sign in on embedded webviews with their default user agent.
 /// WebView2's default already matches Edge, so Windows keeps it.

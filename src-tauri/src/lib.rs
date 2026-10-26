@@ -2,6 +2,7 @@ mod auth;
 mod bridge;
 mod commands;
 mod media;
+mod mini;
 mod player;
 mod settings;
 mod state;
@@ -21,11 +22,11 @@ pub fn run() {
     tauri::Builder::default()
         // Must come first: a second launch hands over to the running app, which shows its window.
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| tray::show_main_window(app)))
-        // Remembers where and how big the main window was. Not the hidden player window, and not
-        // visibility, or the player would reappear on launch.
+        // Remembers where and how big the main window was. Not the hidden player window or the mini
+        // player, and not visibility, or the player would reappear on launch.
         .plugin(
             tauri_plugin_window_state::Builder::default()
-                .with_denylist(&[player::PLAYER_LABEL])
+                .with_denylist(&[player::PLAYER_LABEL, mini::MINI_LABEL])
                 .with_state_flags(StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED)
                 .build(),
         )
@@ -40,6 +41,8 @@ pub fn run() {
             commands::sign_out,
             commands::show_player,
             commands::hide_player,
+            commands::open_mini_player,
+            commands::close_mini_player,
             commands::get_snapshot,
             commands::get_settings,
             commands::set_settings,
@@ -79,6 +82,11 @@ pub fn run() {
                     player::PLAYER_LABEL => {
                         api.prevent_close();
                         let _ = window.hide();
+                    }
+                    // Alt+F4 on the mini player: back to the main window.
+                    mini::MINI_LABEL => {
+                        api.prevent_close();
+                        mini::close(app);
                     }
                     // Keep playing from the tray, or quit (the hidden player would otherwise
                     // keep the app running with no window).

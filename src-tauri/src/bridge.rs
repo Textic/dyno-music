@@ -1,14 +1,24 @@
 //! Commands called by the script injected into music.youtube.com (src/bridge).
 //! Only these are allowed for the remote origin (capabilities/ytm-remote.json).
 
+use serde::Serialize;
 use serde_json::{json, Value};
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::{AppHandle, Emitter, EventTarget, Manager, State};
 
+use crate::mini::MINI_LABEL;
 use crate::player::PLAYER_LABEL;
 use crate::{auth, media, tray};
 use crate::state::{Hub, PlayerState, SessionInfo};
 
-const UI_WINDOW: &str = "main";
+/// Sends an event to our own windows (main and mini player), never to the YouTube Music page.
+fn emit_ui<S: Serialize + Clone>(app: &AppHandle, event: &str, payload: S) {
+    let _ = app.emit_filter(event, payload, |target| match target {
+        EventTarget::Window { label } | EventTarget::Webview { label } | EventTarget::WebviewWindow { label } => {
+            label == tray::MAIN_WINDOW || label == MINI_LABEL
+        }
+        _ => false,
+    });
+}
 
 /// Async because reading cookies deadlocks on the main thread on Windows.
 #[tauri::command]
@@ -25,7 +35,7 @@ pub async fn bridge_ready(
         }
     }
     eprintln!("[bridge] ready: signed in = {}, {}", session.logged_in, session.url);
-    let _ = app.emit_to(UI_WINDOW, "player://session", &session);
+    emit_ui(&app, "player://session", &session);
     *hub.session.lock().unwrap() = Some(session);
     Ok(())
 }
@@ -41,7 +51,7 @@ pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
         *current = state.clone();
         changed
     };
-    let _ = app.emit_to(UI_WINDOW, "player://state", &state);
+    emit_ui(&app, "player://state", &state);
     tray::update(&app, &state);
     media::update(&app, &state, track_changed);
 }
@@ -49,7 +59,7 @@ pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
 #[tauri::command]
 pub fn bridge_queue(app: AppHandle, hub: State<'_, Hub>, queue: Value) {
     *hub.queue.lock().unwrap() = queue.clone();
-    let _ = app.emit_to(UI_WINDOW, "player://queue", &queue);
+    emit_ui(&app, "player://queue", &queue);
 }
 
 #[tauri::command]
@@ -71,9 +81,5 @@ pub fn bridge_response(
 #[tauri::command]
 pub fn bridge_log(app: AppHandle, level: String, message: String) {
     eprintln!("[bridge:{level}] {message}");
-    let _ = app.emit_to(
-        UI_WINDOW,
-        "player://log",
-        json!({ "level": level, "message": message }),
-    );
+    emit_ui(&app, "player://log", json!({ "level": level, "message": message }));
 }

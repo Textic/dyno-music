@@ -118,6 +118,18 @@ pub fn show_player(app: AppHandle) -> Result<(), String> {
     window.set_focus().map_err(|e| e.to_string())
 }
 
+/// Swaps the main window for the mini player.
+#[tauri::command]
+pub fn open_mini_player(app: AppHandle) -> Result<(), String> {
+    crate::mini::open(&app).map_err(|e| e.to_string())
+}
+
+/// Closes the mini player and brings the main window back.
+#[tauri::command]
+pub fn close_mini_player(app: AppHandle) {
+    crate::mini::close(&app);
+}
+
 #[tauri::command]
 pub fn hide_player(app: AppHandle) -> Result<(), String> {
     let window = app
