@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown, Disc3 } from "lucide-vue-next";
+import { ChevronDown, Disc3, ListMusic } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import CoverImage from "@/main/components/CoverImage.vue";
 import LikeButtons from "@/main/components/player/LikeButtons.vue";
@@ -13,6 +13,24 @@ import EmptyState from "@/main/components/brand/EmptyState.vue";
 const player = usePlayerStore();
 const ui = useUiStore();
 const list = ref<HTMLElement | null>(null);
+
+/** Whether the "Up next" panel is shown; remembered between launches. */
+const QUEUE_KEY = "dyno.nowPlaying.showQueue";
+function readShowQueue(): boolean {
+  try {
+    return localStorage.getItem(QUEUE_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+const showQueue = ref(readShowQueue());
+watch(showQueue, (show) => {
+  try {
+    localStorage.setItem(QUEUE_KEY, String(show));
+  } catch {
+    // Not remembered; it still works for this session.
+  }
+});
 
 const currentIndex = computed(() => player.queue.findIndex((e) => e.selected));
 const upNext = computed(() => player.queue.slice(Math.max(currentIndex.value, 0)));
@@ -78,6 +96,16 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       </button>
 
       <div class="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-8 px-10 py-14">
+        <button
+          class="absolute top-4 right-5 hidden size-10 place-items-center rounded-full bg-black/30 text-ink-soft transition hover:bg-black/50 hover:text-ink lg:grid"
+          :class="showQueue && '!bg-white/15 !text-ink'"
+          :aria-label="showQueue ? 'Hide up next' : 'Show up next'"
+          :title="showQueue ? 'Hide up next' : 'Show up next'"
+          :aria-pressed="showQueue"
+          @click="showQueue = !showQueue"
+        >
+          <ListMusic class="size-5" />
+        </button>
         <div
           class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-black/80"
         >
@@ -104,7 +132,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
         </div>
       </div>
 
-      <aside class="relative hidden w-80 shrink-0 flex-col border-l border-white/10 bg-black/25 lg:flex xl:w-96" aria-label="Up next">
+      <aside v-if="showQueue" class="relative hidden w-80 shrink-0 flex-col border-l border-white/10 bg-black/25 lg:flex xl:w-96" aria-label="Up next">
         <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">Up next</h2>
         <EmptyState v-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
         <ol ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
