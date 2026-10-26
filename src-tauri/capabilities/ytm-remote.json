@@ -10,7 +10,6 @@
     "allow-bridge-ready",
     "allow-bridge-state",
     "allow-bridge-response",
-    "allow-bridge-diag",
     "allow-bridge-log"
   ]
 }

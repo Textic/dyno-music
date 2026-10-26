@@ -1,6 +1,6 @@
-import type { BridgeDiag, PlayerState, PlayerStatus } from "../shared/types";
+import type { PlayerState, PlayerStatus } from "../shared/types";
 import { send } from "./ipc";
-import { getLastPlayMethod, setOnChange } from "./player";
+import { setOnChange } from "./player";
 import { isAdShowing, videoElement, ytPlayer } from "./ytm";
 
 const POLL_MS = 500;
@@ -76,38 +76,4 @@ export function startStateWatcher(): void {
   for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "volumechange", "loadedmetadata"]) {
     document.addEventListener(type, () => push(true), true);
   }
-}
-
-/** Phase 0: measures whether the page keeps running normally while its window is hidden. */
-export function startDiagnostics(): void {
-  const gaps: number[] = [];
-  let lastTick = performance.now();
-  let lastPlaybackTime: number | null = null;
-
-  setInterval(() => {
-    const now = performance.now();
-    gaps.push(now - lastTick);
-    if (gaps.length > 10) gaps.shift();
-    lastTick = now;
-  }, 1000);
-
-  setInterval(() => {
-    const state = readState();
-    let playbackAdvancing: boolean | null = null;
-    if (state.status === "playing") {
-      playbackAdvancing = lastPlaybackTime !== null && state.positionSec > lastPlaybackTime;
-      lastPlaybackTime = state.positionSec;
-    } else {
-      lastPlaybackTime = null;
-    }
-    const diag: BridgeDiag = {
-      visibility: document.visibilityState,
-      maxTimerGapMs: Math.round(Math.max(0, ...gaps)),
-      avgTimerGapMs: Math.round(gaps.reduce((a, b) => a + b, 0) / Math.max(gaps.length, 1)),
-      playbackAdvancing,
-      lastPlayMethod: getLastPlayMethod(),
-      userAgent: navigator.userAgent,
-    };
-    void send("bridge_diag", { diag });
-  }, 5000);
 }

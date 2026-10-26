@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import type { BridgeDiag, LogEntry, PlayerCommand, PlayerState, SessionInfo } from "./types";
+import type { LogEntry, PlayerCommand, PlayerState, SessionInfo } from "./types";
 
 export interface Snapshot {
   session: SessionInfo | null;
@@ -28,5 +28,4 @@ const on =
 
 export const onState = on<PlayerState>("player://state");
 export const onSession = on<SessionInfo>("player://session");
-export const onDiag = on<BridgeDiag>("player://diag");
 export const onLog = on<LogEntry>("player://log");

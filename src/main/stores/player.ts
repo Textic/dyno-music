@@ -1,19 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import * as api from "@/shared/api";
-import {
-  IDLE_STATE,
-  type BridgeDiag,
-  type LogEntry,
-  type PlayerState,
-  type SessionInfo,
-} from "@/shared/types";
-
-const MAX_LOGS = 100;
-
-export interface TimedLogEntry extends LogEntry {
-  at: Date;
-}
+import { IDLE_STATE, type LogEntry, type PlayerState, type SessionInfo } from "@/shared/types";
 
 /** Mirror of the hidden player, kept up to date from Rust's player://* events. */
 export const usePlayerStore = defineStore("player", () => {
@@ -22,8 +10,6 @@ export const usePlayerStore = defineStore("player", () => {
   const stateReceivedAt = ref(performance.now());
   const session = ref<SessionInfo | null>(null);
   const signingIn = ref(false);
-  const diag = ref<BridgeDiag | null>(null);
-  const logs = ref<TimedLogEntry[]>([]);
 
   const track = computed(() => state.value.track);
   const isPlaying = computed(() => state.value.status === "playing" || state.value.status === "buffering");
@@ -34,9 +20,9 @@ export const usePlayerStore = defineStore("player", () => {
     stateReceivedAt.value = performance.now();
   }
 
-  function log(entry: LogEntry): void {
-    logs.value.unshift({ ...entry, at: new Date() });
-    if (logs.value.length > MAX_LOGS) logs.value.length = MAX_LOGS;
+  /** Bridge and UI messages; visible in the devtools console. */
+  function log({ level, message }: LogEntry): void {
+    console[level](`[dyno] ${message}`);
   }
 
   /** Runs a command, logging failures instead of throwing at the caller. */
@@ -55,7 +41,6 @@ export const usePlayerStore = defineStore("player", () => {
     await Promise.all([
       api.onSession((next) => (session.value = next)),
       api.onState(setState),
-      api.onDiag((next) => (diag.value = next)),
       api.onLog(log),
     ]);
     const snapshot = await api.getSnapshot();
@@ -80,8 +65,6 @@ export const usePlayerStore = defineStore("player", () => {
     stateReceivedAt,
     session,
     signingIn,
-    diag,
-    logs,
     track,
     isPlaying,
     artistNames,
@@ -94,7 +77,5 @@ export const usePlayerStore = defineStore("player", () => {
     seek: (positionSec: number) => run(() => api.playerCmd({ type: "seek", positionSec })),
     setVolume: (value: number) => run(() => api.playerCmd({ type: "volume", value })),
     playVideo: (videoId: string) => run(() => api.playerCmd({ type: "playVideo", videoId })),
-    showPlayer: () => run(api.showPlayer),
-    hidePlayer: () => run(api.hidePlayer),
   };
 });

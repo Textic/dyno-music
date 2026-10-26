@@ -20,7 +20,6 @@ pub fn run() {
             bridge::bridge_ready,
             bridge::bridge_state,
             bridge::bridge_response,
-            bridge::bridge_diag,
             bridge::bridge_log,
         ])
         .setup(|app| {

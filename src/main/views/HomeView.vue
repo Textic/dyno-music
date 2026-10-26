@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Activity, Library, LogIn, Pause, Play, Search } from "lucide-vue-next";
+import { Library, LogIn, Pause, Play, Search } from "lucide-vue-next";
 import { computed } from "vue";
 import { usePlayerStore } from "@/main/stores/player";
 
@@ -15,7 +15,6 @@ const greeting = computed(() => {
 
 const tiles = [
   { to: { name: "search" }, title: "Search", subtitle: "Songs, artists and albums", icon: Search },
-  { to: { name: "diagnostics" }, title: "Diagnostics", subtitle: "How the hidden player behaves", icon: Activity },
 ];
 </script>
 

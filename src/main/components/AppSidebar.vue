@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Activity, House, Library, LogIn, Search } from "lucide-vue-next";
+import { House, Library, LogIn, Search } from "lucide-vue-next";
 import { usePlayerStore } from "@/main/stores/player";
 
 const player = usePlayerStore();
@@ -7,7 +7,6 @@ const player = usePlayerStore();
 const links = [
   { to: { name: "home" }, label: "Home", icon: House },
   { to: { name: "search" }, label: "Search", icon: Search },
-  { to: { name: "diagnostics" }, label: "Diagnostics", icon: Activity },
 ];
 </script>
 

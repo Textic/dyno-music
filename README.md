@@ -15,11 +15,12 @@ The page can only call the `bridge_*` commands (`src-tauri/capabilities/ytm-remo
 
 ## Status
 
-Phase 0: proof of concept. The test page can search, play and pause through the hidden player, and it shows diagnostics on how the hidden page behaves.
+Early development. You can sign in with Google, search, and play, pause and seek through the hidden player from the app's own interface.
 
 Planned next:
 
-- full UI (home, library, playlists, queue)
+- home recommendations, library, playlists and queue
+- full-screen "Now playing" view with colours from the artwork
 - tray icon and media keys
 - mini player
 - Discord Rich Presence
@@ -42,6 +43,16 @@ npm run tauri dev
 | `src/bridge` | Script injected into music.youtube.com (built to `dist-bridge/bridge.js`) |
 | `src/shared` | Types, IPC wrappers and InnerTube response parsers |
 | `src-tauri/src` | Rust hub: player window, shared state, commands |
+
+## Inspiration
+
+Dyno Music aims for its own look, but it draws on these projects:
+
+- **[Zuno](https://github.com/noFAYZ/zuno)**: a Tauri + React YouTube Music client with a fully custom UI. It inspired the layout (sidebar library, search, home shelves, queue) and the sign-in flow: opening Google's sign-in page and detecting the session from its cookies.
+- **[Glassy Music](https://github.com/NanKillBro/glassy-music-nankill)**: a heavily restyled build of Pear Desktop. It inspired the ambient background taken from the album artwork and the translucent "glass" surfaces.
+- **[Pear Desktop](https://github.com/pear-devs/pear-desktop)** (formerly th-ch/youtube-music): the long-running YouTube Music desktop app. It showed how far you can go by running music.youtube.com itself and extending it with injected scripts.
+
+No code is copied from these projects; all credit for their ideas goes to their authors.
 
 ## Disclaimer
 

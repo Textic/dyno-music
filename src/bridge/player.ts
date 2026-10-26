@@ -2,12 +2,6 @@ import type { PlayerCommand } from "../shared/types";
 import { log } from "./ipc";
 import { clickPlayerBar, videoElement, waitFor, ytmApp, ytPlayer } from "./ytm";
 
-let lastPlayMethod: string | null = null;
-
-export function getLastPlayMethod(): string | null {
-  return lastPlayMethod;
-}
-
 /** Called by the state watcher after a command so the UI updates without waiting for the next poll. */
 let onChange: () => void = () => {};
 export function setOnChange(callback: () => void): void {
@@ -87,6 +81,5 @@ async function playVideo(videoId: string, playlistId?: string): Promise<void> {
 }
 
 function reportMethod(method: string): void {
-  lastPlayMethod = method;
   log(method.startsWith("SPA") ? "info" : "warn", `Playback started with: ${method}`);
 }

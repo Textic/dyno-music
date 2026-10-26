@@ -14,7 +14,6 @@ fn main() {
             "bridge_ready",
             "bridge_state",
             "bridge_response",
-            "bridge_diag",
             "bridge_log",
         ]),
     ))

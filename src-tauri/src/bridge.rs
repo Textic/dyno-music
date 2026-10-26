@@ -58,12 +58,6 @@ pub fn bridge_response(
     hub.resolve_request(id, result);
 }
 
-/// Phase 0 diagnostics (timer throttling, page visibility...), forwarded to the UI as-is.
-#[tauri::command]
-pub fn bridge_diag(app: AppHandle, diag: Value) {
-    let _ = app.emit_to(UI_WINDOW, "player://diag", &diag);
-}
-
 #[tauri::command]
 pub fn bridge_log(app: AppHandle, level: String, message: String) {
     eprintln!("[bridge:{level}] {message}");

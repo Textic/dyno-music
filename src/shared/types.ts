@@ -57,18 +57,6 @@ export interface BridgeRequest {
   body: Record<string, unknown>;
 }
 
-/** Phase 0: measurements of how the hidden page behaves. */
-export interface BridgeDiag {
-  visibility: DocumentVisibilityState;
-  /** Longest gap between ticks of a 1 s timer over the last 10 s. */
-  maxTimerGapMs: number;
-  avgTimerGapMs: number;
-  /** Whether playback time moved since the previous report while playing; null when not playing. */
-  playbackAdvancing: boolean | null;
-  lastPlayMethod: string | null;
-  userAgent: string;
-}
-
 export interface LogEntry {
   level: "info" | "warn" | "error";
   message: string;
