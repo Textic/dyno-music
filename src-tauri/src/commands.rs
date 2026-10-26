@@ -9,6 +9,8 @@ use crate::player::{self, PLAYER_LABEL};
 use crate::state::{Hub, LikeStatus, PlayerState, SessionInfo};
 
 const API_TIMEOUT: Duration = Duration::from_secs(15);
+/// How long a request waits for the player page to finish loading.
+const READY_TIMEOUT: Duration = Duration::from_secs(45);
 
 /// InnerTube endpoints the UI may reach through the bridge.
 const ALLOWED_ENDPOINTS: &[&str] = &[
@@ -67,8 +69,13 @@ pub async fn ytm_api(
     if !ALLOWED_ENDPOINTS.contains(&endpoint.as_str()) {
         return Err(format!("endpoint not allowed: {endpoint}"));
     }
-    if !hub.is_ready() {
-        return Err("YouTube Music is still loading".into());
+    // On startup the UI asks for content before the hidden page has loaded: wait for it.
+    let started = tokio::time::Instant::now();
+    while !hub.is_ready() {
+        if started.elapsed() > READY_TIMEOUT {
+            return Err("YouTube Music did not finish loading".into());
+        }
+        tokio::time::sleep(Duration::from_millis(100)).await;
     }
 
     let (id, rx) = hub.register_request();
