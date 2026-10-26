@@ -7,6 +7,8 @@
 #    latest.json to a draft GitHub Release.
 # 3. publish: only once every build passed, so the in-app updater never sees a half-built release.
 #
+# The version job also merges main back into dev, so dev carries the bumped version too.
+#
 # Needs the TAURI_SIGNING_PRIVATE_KEY secret (and TAURI_SIGNING_PRIVATE_KEY_PASSWORD if the key
 # has one): updates are signed with it and the app checks them against the public key in
 # tauri.conf.json.
@@ -45,11 +47,11 @@ jobs:
       - name: Pick the version and tag it
         id: version
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           current=$(node -p "require('./src-tauri/tauri.conf.json').version")
           if git rev-parse -q --verify "refs/tags/v$current" > /dev/null; then
             version=$(node scripts/bump-version.mjs patch)
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git commit -am "Release v$version"
             git push origin HEAD:main
           else
@@ -58,6 +60,21 @@ jobs:
           git tag "v$version"
           git push origin "v$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      # The version bump only exists on main; bring it to dev so both branches agree. A conflict
+      # (dev changed the same lines meanwhile) must not stop the release: it is left for a human.
+      - name: Bring the version back to dev
+        continue-on-error: true
+        run: |
+          git fetch origin main dev
+          git checkout -B dev origin/dev
+          if git merge --no-edit -m "Sync main into dev after v${{ steps.version.outputs.version }}" origin/main; then
+            git push origin dev
+          else
+            git merge --abort
+            echo "::warning::Could not merge main into dev automatically; merge it by hand."
+            exit 1
+          fi
 
   build:
     needs: version

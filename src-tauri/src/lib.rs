@@ -10,10 +10,26 @@ mod tray;
 use std::sync::Mutex;
 
 use tauri::{Manager, WindowEvent};
+use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_window_state::StateFlags;
+
+/// Passed when Windows (or macOS, Linux) launches the app at login: start in the tray.
+const HIDDEN_ARG: &str = "--hidden";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        // Must come first: a second launch hands over to the running app, which shows its window.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| tray::show_main_window(app)))
+        // Remembers where and how big the main window was. Not the hidden player window, and not
+        // visibility, or the player would reappear on launch.
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_denylist(&[player::PLAYER_LABEL])
+                .with_state_flags(StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED)
+                .build(),
+        )
+        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![HIDDEN_ARG])))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
         .manage(state::Hub::default())
@@ -46,6 +62,13 @@ pub fn run() {
             }
             // setup() runs on the main thread, where the media controls must live.
             media::set_enabled(handle, media_controls);
+
+            // Launched at login: stay in the tray until the user opens the window.
+            if std::env::args().any(|arg| arg == HIDDEN_ARG) {
+                if let Some(window) = app.get_webview_window(tray::MAIN_WINDOW) {
+                    let _ = window.hide();
+                }
+            }
             Ok(())
         })
         .on_window_event(|window, event| {

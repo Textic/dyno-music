@@ -11,7 +11,8 @@ use tauri::{AppHandle, Manager};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
-    /// Closing the main window hides it to the tray and keeps the music playing.
+    /// Closing the main window hides it to the tray and keeps the music playing. Off by
+    /// default: the close button quits unless the user asks otherwise.
     pub close_to_tray: bool,
     /// Media keys and the system media panel (Windows SMTC, macOS Now Playing, Linux MPRIS).
     pub media_controls: bool,
@@ -20,7 +21,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            close_to_tray: true,
+            close_to_tray: false,
             media_controls: true,
         }
     }

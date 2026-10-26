@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getVersion } from "@tauri-apps/api/app";
+import * as autostart from "@tauri-apps/plugin-autostart";
 import { Download, Eye, LogIn, LogOut, RefreshCw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import ToggleSwitch from "@/main/components/ToggleSwitch.vue";
@@ -16,10 +17,25 @@ const updates = useUpdatesStore();
 const settings = ref<Settings | null>(null);
 const version = ref("");
 const confirmingSignOut = ref(false);
+/** Read from the system itself (e.g. the Windows startup list), not from settings.json. */
+const launchAtLogin = ref<boolean | null>(null);
 
 onMounted(async () => {
-  [settings.value, version.value] = await Promise.all([api.getSettings(), getVersion()]);
+  [settings.value, version.value, launchAtLogin.value] = await Promise.all([
+    api.getSettings(),
+    getVersion(),
+    autostart.isEnabled().catch(() => null),
+  ]);
 });
+
+async function setLaunchAtLogin(on: boolean): Promise<void> {
+  try {
+    await (on ? autostart.enable() : autostart.disable());
+    launchAtLogin.value = await autostart.isEnabled();
+  } catch (err) {
+    ui.toast(`Could not change launch at login: ${err}`, "error");
+  }
+}
 
 async function update(patch: Partial<Settings>): Promise<void> {
   if (!settings.value) return;
@@ -67,6 +83,13 @@ const action =
             label="Media keys and system controls"
             description="Play, pause and skip from your keyboard's media keys and the system media panel."
             @update:model-value="update({ mediaControls: $event })"
+          />
+          <ToggleSwitch
+            v-if="launchAtLogin !== null"
+            :model-value="launchAtLogin"
+            label="Launch at login"
+            description="Starts Dyno Music in the tray when you sign in to your computer."
+            @update:model-value="setLaunchAtLogin($event)"
           />
         </template>
         <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
