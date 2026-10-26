@@ -77,6 +77,14 @@ export interface BridgeRequest {
   body: Record<string, unknown>;
 }
 
+/** Mirrors `Settings` in src-tauri/src/settings.rs. */
+export interface Settings {
+  /** Closing the window hides it to the tray and keeps the music playing. */
+  closeToTray: boolean;
+  /** Media keys and the system media panel. */
+  mediaControls: boolean;
+}
+
 export interface LogEntry {
   level: "info" | "warn" | "error";
   message: string;

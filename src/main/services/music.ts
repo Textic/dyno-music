@@ -7,6 +7,8 @@ import type { LikeStatus } from "@/shared/types";
 
 export const HOME = "FEmusic_home";
 export const LIKED_SONGS = "VLLM";
+/** YouTube Music's own listening history, across all devices. */
+export const HISTORY = "FEmusic_history";
 export const LIBRARY = {
   playlists: "FEmusic_liked_playlists",
   albums: "FEmusic_liked_albums",

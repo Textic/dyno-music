@@ -21,6 +21,7 @@ export const useUiStore = defineStore("ui", () => {
   const menu = ref<ContextMenuState | null>(null);
   const addToPlaylistFor = ref<MediaItem | null>(null);
   const queueOpen = ref(false);
+  const nowPlayingOpen = ref(false);
   const toasts = ref<Toast[]>([]);
   let nextToastId = 0;
 
@@ -35,5 +36,5 @@ export const useUiStore = defineStore("ui", () => {
     setTimeout(() => (toasts.value = toasts.value.filter((t) => t.id !== id)), 3200);
   }
 
-  return { menu, addToPlaylistFor, queueOpen, toasts, openMenu, toast };
+  return { menu, addToPlaylistFor, queueOpen, nowPlayingOpen, toasts, openMenu, toast };
 });

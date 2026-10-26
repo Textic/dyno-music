@@ -11,6 +11,9 @@ fn main() {
             "hide_player",
             "get_snapshot",
             "ui_log",
+            "get_settings",
+            "set_settings",
+            "sign_out",
             // Bridge (music.youtube.com inside the hidden player window)
             "bridge_ready",
             "bridge_state",

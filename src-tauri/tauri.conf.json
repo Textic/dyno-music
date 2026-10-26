@@ -19,7 +19,9 @@
         "height": 760,
         "minWidth": 720,
         "minHeight": 480,
-        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required"
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,HardwareMediaKeyHandling --autoplay-policy=no-user-gesture-required",
+        "decorations": false,
+        "shadow": true
       }
     ],
     "security": {

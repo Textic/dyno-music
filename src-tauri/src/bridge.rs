@@ -4,8 +4,8 @@
 use serde_json::{json, Value};
 use tauri::{AppHandle, Emitter, Manager, State};
 
-use crate::auth;
 use crate::player::PLAYER_LABEL;
+use crate::{auth, media, tray};
 use crate::state::{Hub, PlayerState, SessionInfo};
 
 const UI_WINDOW: &str = "main";
@@ -32,14 +32,18 @@ pub async fn bridge_ready(
 
 #[tauri::command]
 pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
-    {
+    let track_changed = {
         let mut current = hub.player.lock().unwrap();
         if *current == state {
             return;
         }
+        let changed = current.track != state.track;
         *current = state.clone();
-    }
+        changed
+    };
     let _ = app.emit_to(UI_WINDOW, "player://state", &state);
+    tray::update(&app, &state);
+    media::update(&app, &state, track_changed);
 }
 
 #[tauri::command]

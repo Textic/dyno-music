@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { House, Library, LogIn, Search } from "lucide-vue-next";
+import { History, House, Library, LogIn, Search, Settings } from "lucide-vue-next";
 import CoverImage from "@/main/components/CoverImage.vue";
 import { browseRoute } from "@/main/composables/useMedia";
 import { useLibraryStore } from "@/main/stores/library";
@@ -12,21 +12,13 @@ const links = [
   { to: { name: "home" }, label: "Home", icon: House },
   { to: { name: "search" }, label: "Search", icon: Search },
   { to: { name: "library" }, label: "Library", icon: Library },
+  { to: { name: "history" }, label: "History", icon: History },
 ];
 </script>
 
 <template>
   <!-- Icons only on narrow windows, labels from lg up. -->
-  <aside class="flex min-h-0 w-[76px] shrink-0 flex-col gap-6 px-3 py-5 lg:w-60 lg:px-4">
-    <div class="flex items-center justify-center gap-2.5 lg:justify-start lg:px-2">
-      <div
-        class="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-fuchsia-500 text-lg font-black shadow-lg shadow-accent/30"
-      >
-        D
-      </div>
-      <span class="hidden text-xl font-extrabold tracking-tight lg:inline">dyno</span>
-    </div>
-
+  <aside class="flex min-h-0 w-[76px] shrink-0 flex-col gap-6 px-3 pt-2 pb-5 lg:w-60 lg:px-4">
     <nav class="flex flex-col gap-1">
       <RouterLink
         v-for="link in links"
@@ -63,8 +55,18 @@ const links = [
       </ul>
     </section>
 
+    <RouterLink
+      :to="{ name: 'settings' }"
+      title="Settings"
+      class="mt-auto flex items-center justify-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-soft transition hover:bg-white/5 hover:text-ink lg:justify-start"
+      active-class="!bg-white/10 !text-ink"
+    >
+      <Settings class="size-[18px] shrink-0" />
+      <span class="hidden lg:inline">Settings</span>
+    </RouterLink>
+
     <!-- Narrow: just the session state. -->
-    <div class="mt-auto flex justify-center lg:hidden">
+    <div class="flex justify-center lg:hidden">
       <span
         v-if="player.session?.loggedIn"
         class="size-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px] shadow-emerald-400"
@@ -81,7 +83,7 @@ const links = [
       </button>
     </div>
 
-    <div v-if="!player.signedIn" class="glass mt-auto hidden rounded-2xl p-4 lg:block">
+    <div v-if="!player.signedIn" class="glass hidden rounded-2xl p-4 lg:block">
       <template v-if="!player.session">
         <p class="text-sm text-ink-soft">Connecting to YouTube Music…</p>
       </template>

@@ -21,6 +21,8 @@ Early development. Working today, all from the app's own interface:
 - album, playlist and artist pages; search with filters and suggestions
 - playback controls, repeat, shuffle, likes, and a queue you can reorder
 - play next / add to queue / add to playlist from a right-click menu
+- a full-screen "Now playing" view, a custom title bar, listening history and settings
+- tray icon (keeps playing when the window is closed) and media keys / system media controls
 
 See [TODO.md](TODO.md) for what comes next.
 

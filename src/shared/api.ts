@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { QueueEntry } from "./innertube/model";
-import type { LogEntry, PlayerCommand, PlayerState, SessionInfo } from "./types";
+import type { LogEntry, PlayerCommand, PlayerState, SessionInfo, Settings } from "./types";
 
 export interface Snapshot {
   session: SessionInfo | null;
@@ -17,6 +17,13 @@ export const ytmApi = <T = unknown>(endpoint: string, body: Record<string, unkno
 
 /** Opens Google's sign-in; resolves once signed in, rejects if cancelled or timed out. */
 export const signIn = () => invoke<void>("sign_in");
+
+/** Forgets the Google session; the bridge then reports the signed-out page. */
+export const signOut = () => invoke<void>("sign_out");
+
+export const getSettings = () => invoke<Settings>("get_settings");
+
+export const setSettings = (settings: Settings) => invoke<void>("set_settings", { settings });
 
 export const showPlayer = () => invoke<void>("show_player");
 

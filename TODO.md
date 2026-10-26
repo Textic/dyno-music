@@ -23,26 +23,26 @@ Roadmap for Dyno Music. Suggested order: the **Essentials** first (the app is no
 
 ## Look and feel
 
-- [ ] **Full-screen "Now playing" view**: the player island expands, with large artwork
+- [x] **Full-screen "Now playing" view**: the player island expands, with large artwork
 - [ ] **Per-song colour**: the app's accent follows the artwork's colours
 - [ ] **Synced lyrics**, line by line, in the "Now playing" view
 - [ ] **Mini player**: the island floating on its own outside the window, always on top
-- [ ] **Custom title bar**, without the standard window frame
+- [x] **Custom title bar**, without the standard window frame
 - [ ] **Dyno identity**: an original logo or character for empty and loading screens
 - [ ] **Light theme** and a **reduced-motion** mode
 
 ## Desktop integration
 
-- [ ] **Tray icon**, and closing to the tray without stopping the music
-- [ ] **Media keys** and the system media panel (Windows SMTC, macOS Now Playing, Linux MPRIS)
+- [x] **Tray icon**, and closing to the tray without stopping the music
+- [x] **Media keys** and the system media panel (Windows SMTC, macOS Now Playing, Linux MPRIS)
 - [ ] **Discord Rich Presence**: "Listening to…" with artwork and progress
 - [ ] **Single instance**, remember window size and position, launch at login, configurable shortcuts
 
 ## Settings and extras
 
-- [ ] **Settings screen**: Discord on/off, close to tray, audio quality, show the YouTube Music window for debugging
+- [x] **Settings screen**: Discord on/off, close to tray, audio quality, show the YouTube Music window for debugging
 - [ ] **Last.fm scrobbling**
-- [ ] **Listening history**
+- [x] **Listening history**
 
 ## Performance and releases
 
