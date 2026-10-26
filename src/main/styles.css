@@ -1,268 +1,78 @@
-:root {
-  --bg: #0f0f12;
-  --panel: #18181d;
-  --panel-2: #222229;
-  --text: #f1f1f4;
-  --muted: #9a9aa6;
-  --accent: #ff3d5a;
-  --ok: #3ccf7a;
-  --warn: #f5b942;
-  --error: #ff5c5c;
-  --radius: 10px;
+@import "tailwindcss";
 
-  color-scheme: dark;
-  font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
+@theme {
+  --font-sans: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --color-ink: #f5f4f9;
+  --color-ink-soft: #b9b7c6;
+  --color-ink-faint: #7d7a8c;
+  --color-night: #08080b;
+  /* Brand accent; will follow the current artwork once colour extraction lands. */
+  --color-accent: #ff4d6d;
+  --color-accent-soft: #ff8fa3;
 }
 
-* {
-  box-sizing: border-box;
+/* Translucent surface. No backdrop blur here: the ambient background is already blurred once,
+   and stacking backdrop-filter on many panels is what makes glassy UIs heavy. */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.055);
+  border: 1px solid rgb(255 255 255 / 0.08);
 }
 
-body {
-  margin: 0;
-  height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: var(--bg);
+@utility glass-hover {
+  &:hover {
+    background-color: rgb(255 255 255 / 0.09);
+  }
 }
 
-button {
-  font: inherit;
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid #2f2f38;
-  border-radius: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
+@layer base {
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--color-night);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+
+  input,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.12);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  input[type="range"] {
+    accent-color: var(--color-accent);
+  }
 }
 
-button:hover {
-  border-color: #4a4a55;
-}
-
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-input[type="search"] {
-  font: inherit;
-  color: var(--text);
-  background: var(--panel-2);
-  border: 1px solid #2f2f38;
-  border-radius: 8px;
-  padding: 8px 12px;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Top bar */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 1px solid #23232a;
-}
-
-.topbar h1 {
-  font-size: 18px;
-  margin: 0;
-}
-
-.topbar .actions {
-  margin-left: auto;
-  display: flex;
-  gap: 8px;
-}
-
-.badge {
-  font-size: 12px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--panel-2);
-  color: var(--muted);
-}
-
-.badge[data-kind="ok"] {
-  color: var(--ok);
-}
-
-.badge[data-kind="warn"] {
-  color: var(--warn);
-}
-
-/* Layout */
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 12px;
-  padding: 12px 16px;
-  min-height: 0;
-}
-
-.panel {
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 14px;
-  overflow: auto;
-  min-height: 0;
-}
-
-.search {
-  display: flex;
-  gap: 8px;
-}
-
-.hint {
-  color: var(--muted);
-  margin: 10px 0;
-}
-
-.results {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.results li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px;
-  border-radius: 8px;
-}
-
-.results li:hover {
-  background: var(--panel-2);
-}
-
-.thumb {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: var(--panel-2);
-}
-
-.meta,
-.now-playing {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  flex: 1;
-}
-
-.meta strong,
-.meta span,
-.now-playing strong,
-.now-playing span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.meta span,
-.now-playing span {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-/* Diagnostics */
-.diag h2 {
-  font-size: 15px;
-  margin: 0 0 10px;
-}
-
-.diag h3 {
-  font-size: 13px;
-  margin: 16px 0 6px;
-}
-
-.diag dl {
-  margin: 0;
-}
-
-.diag dt {
-  color: var(--muted);
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.diag dd {
-  margin: 2px 0 0;
-}
-
-.small {
-  font-size: 11px;
-  word-break: break-all;
-}
-
-.log {
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
-  font-size: 12px;
-}
-
-.log li {
-  padding: 3px 0;
-  border-bottom: 1px solid #23232a;
-}
-
-.log li[data-level="warn"] {
-  color: var(--warn);
-}
-
-.log li[data-level="error"] {
-  color: var(--error);
-}
-
-/* Player bar */
-.player-bar {
-  display: grid;
-  grid-template-columns: 56px minmax(120px, 1fr) auto minmax(200px, 2fr) auto;
-  align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
-  border-top: 1px solid #23232a;
-  background: var(--panel);
-}
-
-.cover {
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
-  object-fit: cover;
-}
-
-.controls {
-  display: flex;
-  gap: 6px;
-}
-
-.seek {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.seek input {
-  flex: 1;
-}
-
-.volume {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--muted);
-}
-
-input[type="range"] {
-  accent-color: var(--accent);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

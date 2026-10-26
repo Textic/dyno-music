@@ -5,17 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "npm run build:bridge && vite",
-    "build": "tsc && npm run build:bridge && vite build",
+    "build": "vue-tsc --noEmit && npm run build:bridge && vite build",
     "build:bridge": "vite build --config vite.bridge.config.ts",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2"
+    "@tauri-apps/api": "^2",
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^4.1.0",
+    "vue": "^3.5.44",
+    "vue-router": "^5.4.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.3",
     "vite": "^8.0.16",
-    "typescript": "~6.0.3"
+    "vue-tsc": "^3.3.13"
   }
 }

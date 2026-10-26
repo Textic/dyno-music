@@ -1,6 +1,6 @@
 # Dyno Music
 
-A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.app), TypeScript and Vite.
+A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
 
 ## How it works
 
@@ -38,7 +38,7 @@ npm run tauri dev
 
 | Path | Purpose |
 |---|---|
-| `src/main` | App UI |
+| `src/main` | App UI (Vue 3 + Tailwind CSS 4, Pinia, Vue Router) |
 | `src/bridge` | Script injected into music.youtube.com (built to `dist-bridge/bridge.js`) |
 | `src/shared` | Types, IPC wrappers and InnerTube response parsers |
 | `src-tauri/src` | Rust hub: player window, shared state, commands |
