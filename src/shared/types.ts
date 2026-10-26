@@ -83,6 +83,27 @@ export interface Settings {
   closeToTray: boolean;
   /** Media keys and the system media panel. */
   mediaControls: boolean;
+  /** "Listening to…" on the user's Discord profile. */
+  discordPresence: boolean;
+  shortcuts: Record<ShortcutAction, ShortcutBinding>;
+}
+
+/** Mirrors `ShortcutAction` in src-tauri/src/shortcuts.rs. */
+export type ShortcutAction =
+  | "playPause"
+  | "next"
+  | "previous"
+  | "volumeUp"
+  | "volumeDown"
+  | "like"
+  | "miniPlayer"
+  | "showWindow";
+
+export interface ShortcutBinding {
+  /** Modifiers then the key's `KeyboardEvent.code`, e.g. "Ctrl+Shift+KeyP". */
+  keys: string | null;
+  /** Works from any app, not only while a Dyno Music window has focus. */
+  global: boolean;
 }
 
 export interface LogEntry {

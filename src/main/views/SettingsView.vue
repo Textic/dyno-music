@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { getVersion } from "@tauri-apps/api/app";
 import * as autostart from "@tauri-apps/plugin-autostart";
-import { Download, Eye, LogIn, LogOut, RefreshCw } from "lucide-vue-next";
+import { Download, Eye, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
+import ShortcutSettings from "@/main/components/ShortcutSettings.vue";
 import ToggleSwitch from "@/main/components/ToggleSwitch.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
@@ -39,13 +40,18 @@ async function setLaunchAtLogin(on: boolean): Promise<void> {
 
 async function update(patch: Partial<Settings>): Promise<void> {
   if (!settings.value) return;
-  const next = { ...settings.value, ...patch };
   try {
-    await api.setSettings(next);
-    settings.value = next;
+    await api.setSettings({ ...settings.value, ...patch });
   } catch (err) {
-    ui.toast(`Could not save settings: ${err}`, "error");
+    ui.toast(String(err), "error");
   }
+  // Read back what was saved: Rust fills in defaults, and saves even when a shortcut fails.
+  settings.value = await api.getSettings();
+}
+
+/** Rust puts back the default for every action that's missing. */
+function resetShortcuts(): Promise<void> {
+  return update({ shortcuts: {} as Settings["shortcuts"] });
 }
 
 async function signOut(): Promise<void> {
@@ -91,7 +97,33 @@ const action =
             description="Starts Dyno Music in the tray when you sign in to your computer."
             @update:model-value="setLaunchAtLogin($event)"
           />
+          <ToggleSwitch
+            :model-value="settings.discordPresence"
+            label="Show what I'm listening to on Discord"
+            description="Your Discord profile shows the song, its artwork and progress while Discord is open on this computer."
+            @update:model-value="update({ discordPresence: $event })"
+          />
         </template>
+        <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="mb-2 flex items-end justify-between gap-4 px-1">
+        <h2 :class="[sectionTitle, '!mb-0 !px-0']">Shortcuts</h2>
+        <button
+          v-if="settings"
+          class="inline-flex items-center gap-1.5 text-xs text-ink-faint transition hover:text-ink"
+          @click="resetShortcuts"
+        >
+          <RotateCcw class="size-3.5" /> Reset to defaults
+        </button>
+      </div>
+      <div :class="card">
+        <p class="pt-2 pb-1 text-xs text-ink-faint">
+          Click a shortcut and press the new keys; Backspace removes it. The globe makes it work from any app.
+        </p>
+        <ShortcutSettings v-if="settings" :shortcuts="settings.shortcuts" @change="update({ shortcuts: $event })" />
         <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
       </div>
     </section>

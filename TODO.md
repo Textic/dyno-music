@@ -8,11 +8,6 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 - [ ] **Synced lyrics**, line by line, in the "Now playing" view
 - [ ] **Light theme** and a **reduced-motion** mode
 
-## Desktop integration
-
-- [ ] **Discord Rich Presence**: "Listening to…" with artwork and progress, with an on/off switch in Settings
-- [ ] **Configurable shortcuts**, global ones too (e.g. play/pause from any app)
-
 ## Settings and extras
 
 - [ ] **Audio quality** setting

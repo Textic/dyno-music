@@ -7,11 +7,11 @@ use tauri::{AppHandle, Emitter, EventTarget, Manager, State};
 
 use crate::mini::MINI_LABEL;
 use crate::player::PLAYER_LABEL;
-use crate::{auth, media, tray};
+use crate::{auth, discord, media, tray};
 use crate::state::{Hub, PlayerState, SessionInfo};
 
 /// Sends an event to our own windows (main and mini player), never to the YouTube Music page.
-fn emit_ui<S: Serialize + Clone>(app: &AppHandle, event: &str, payload: S) {
+pub fn emit_ui<S: Serialize + Clone>(app: &AppHandle, event: &str, payload: S) {
     let _ = app.emit_filter(event, payload, |target| match target {
         EventTarget::Window { label } | EventTarget::Webview { label } | EventTarget::WebviewWindow { label } => {
             label == tray::MAIN_WINDOW || label == MINI_LABEL
@@ -54,6 +54,7 @@ pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
     emit_ui(&app, "player://state", &state);
     tray::update(&app, &state);
     media::update(&app, &state, track_changed);
+    discord::update(&app, &state);
 }
 
 #[tauri::command]

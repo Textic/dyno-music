@@ -1,10 +1,12 @@
 mod auth;
 mod bridge;
 mod commands;
+mod discord;
 mod media;
 mod mini;
 mod player;
 mod settings;
+mod shortcuts;
 mod state;
 mod tray;
 
@@ -33,7 +35,9 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![HIDDEN_ARG])))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().with_handler(shortcuts::on_global).build())
         .manage(state::Hub::default())
+        .manage(shortcuts::Registered::default())
         .invoke_handler(tauri::generate_handler![
             commands::player_cmd,
             commands::ytm_api,
@@ -47,6 +51,7 @@ pub fn run() {
             commands::get_settings,
             commands::set_settings,
             commands::ui_log,
+            commands::run_shortcut,
             bridge::bridge_ready,
             bridge::bridge_state,
             bridge::bridge_queue,
@@ -57,6 +62,15 @@ pub fn run() {
             let handle = app.handle();
             let settings = settings::load(handle);
             let media_controls = settings.media_controls;
+            discord::start(handle, settings.discord_presence);
+            // Off the main thread: the shortcut plugin waits for it, and setup() runs on it.
+            let shortcuts_handle = handle.clone();
+            let startup_settings = settings.clone();
+            tauri::async_runtime::spawn(async move {
+                for err in shortcuts::apply(&shortcuts_handle, &startup_settings) {
+                    eprintln!("[shortcuts] {err}");
+                }
+            });
             app.manage(settings::SettingsStore(Mutex::new(settings)));
 
             player::create(handle)?;

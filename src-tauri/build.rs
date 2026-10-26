@@ -20,6 +20,7 @@ fn main() {
             "get_settings",
             "set_settings",
             "sign_out",
+            "run_shortcut",
             // Bridge (music.youtube.com inside the hidden player window)
             "bridge_ready",
             "bridge_state",

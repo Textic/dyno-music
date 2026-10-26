@@ -5,11 +5,13 @@ import { Maximize2, Pause, Pin, PinOff, Play, SkipBack, SkipForward, ThumbsUp } 
 import { computed, ref } from "vue";
 import CoverImage from "@/main/components/CoverImage.vue";
 import { formatTime, usePlaybackPosition } from "@/main/composables/usePlaybackPosition";
+import { useShortcuts } from "@/main/composables/useShortcuts";
 import { usePlayerStore } from "@/main/stores/player";
 import * as api from "@/shared/api";
 
 const player = usePlayerStore();
 const position = usePlaybackPosition();
+useShortcuts();
 // Null in a plain browser (previewing the UI without Tauri).
 const appWindow = isTauri() ? getCurrentWindow() : null;
 

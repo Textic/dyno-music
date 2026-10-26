@@ -33,6 +33,18 @@ pub fn close(app: &AppHandle) {
     tray::show_main_window(app);
 }
 
+pub fn toggle(app: &AppHandle) {
+    let visible = app
+        .get_webview_window(MINI_LABEL)
+        .and_then(|window| window.is_visible().ok())
+        .unwrap_or(false);
+    if visible {
+        close(app);
+    } else if let Err(err) = open(app) {
+        eprintln!("[mini] could not open the mini player: {err}");
+    }
+}
+
 fn create(app: &AppHandle) -> tauri::Result<WebviewWindow> {
     let builder = WebviewWindowBuilder::new(app, MINI_LABEL, WebviewUrl::App("mini.html".into()))
         .title("Dyno Music · Mini player")
