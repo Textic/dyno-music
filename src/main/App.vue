@@ -10,6 +10,7 @@ import PlayerIsland from "./components/PlayerIsland.vue";
 import QueuePanel from "./components/QueuePanel.vue";
 import TitleBar from "./components/TitleBar.vue";
 import ToastHost from "./components/ToastHost.vue";
+import UpdateNotice from "./components/UpdateNotice.vue";
 import { useUiStore } from "./stores/ui";
 
 const route = useRoute();
@@ -39,6 +40,7 @@ watch(
           <RouterView :key="route.fullPath" />
         </main>
         <QueuePanel />
+        <UpdateNotice />
         <PlayerIsland v-show="!ui.nowPlayingOpen" />
       </div>
 

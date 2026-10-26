@@ -48,4 +48,4 @@ Roadmap for Dyno Music. Suggested order: the **Essentials** first (the app is no
 
 - [x] **Lighten the hidden page**: tried hiding YouTube Music's own UI with CSS; an A/B measurement showed no difference (WebView2 already skips drawing the hidden window), so it was left out. Still to measure: usage during playback
 - [x] **Cache** pages and searches so revisiting is instant (artwork is already kept by the webview's HTTP cache)
-- [ ] **Installers** for Windows, macOS and Linux with GitHub Actions, plus **auto-updates**
+- [x] **Installers** for Windows, macOS and Linux with GitHub Actions, plus **auto-updates**

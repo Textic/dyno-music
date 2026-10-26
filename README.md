@@ -39,6 +39,18 @@ npm install
 npm run tauri dev
 ```
 
+## Releases and updates
+
+Installers for Windows (MSI, NSIS), macOS (Apple Silicon and Intel) and Linux (AppImage, deb, rpm) are built by [the release workflow](.github/workflows/release.yml) and attached to a draft GitHub Release. Installed copies update themselves from the latest published release; updates are signed and checked against the public key in `src-tauri/tauri.conf.json`.
+
+To publish a version:
+
+1. Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`.
+2. Push a tag such as `v0.2.0`.
+3. When the workflow finishes, review the draft release and publish it.
+
+The workflow needs the `TAURI_SIGNING_PRIVATE_KEY` repository secret (the private half of the update key). The builds aren't code-signed, so Windows SmartScreen and macOS Gatekeeper warn on first install.
+
 ## Project layout
 
 | Path | Purpose |

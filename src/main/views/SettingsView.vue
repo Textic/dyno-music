@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { getVersion } from "@tauri-apps/api/app";
-import { Eye, LogIn, LogOut } from "lucide-vue-next";
+import { Download, Eye, LogIn, LogOut, RefreshCw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import ToggleSwitch from "@/main/components/ToggleSwitch.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
+import { useUpdatesStore } from "@/main/stores/updates";
 import * as api from "@/shared/api";
 import type { Settings } from "@/shared/types";
 
 const player = usePlayerStore();
 const ui = useUiStore();
+const updates = useUpdatesStore();
 
 const settings = ref<Settings | null>(null);
 const version = ref("");
@@ -96,6 +98,37 @@ const action =
         <button v-else-if="player.session" :class="action" :disabled="player.signingIn" @click="player.signIn()">
           <LogIn class="size-4" />
           {{ player.signingIn ? "Waiting for Google…" : "Sign in with Google" }}
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h2 :class="sectionTitle">Updates</h2>
+      <div :class="[card, 'flex flex-wrap items-center gap-4 py-5']">
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium">
+            <template v-if="updates.status === 'checking'">Checking for updates…</template>
+            <template v-else-if="updates.status === 'none'">You're on the latest version</template>
+            <template v-else-if="updates.status === 'available'">Version {{ updates.version }} is available</template>
+            <template v-else-if="updates.status === 'downloading'">Downloading version {{ updates.version }}…</template>
+            <template v-else-if="updates.status === 'error'">Couldn't check for updates</template>
+            <template v-else>Dyno Music {{ version && `v${version}` }}</template>
+          </p>
+          <p class="mt-0.5 text-xs text-ink-faint">
+            <template v-if="updates.status === 'error'">{{ updates.error }}</template>
+            <template v-else>New versions come from GitHub Releases; Dyno Music checks a few seconds after it starts.</template>
+          </p>
+        </div>
+        <button v-if="updates.status === 'available'" :class="[action, '!bg-accent hover:brightness-110']" @click="updates.install()">
+          <Download class="size-4" /> Install & restart
+        </button>
+        <button
+          v-else
+          :class="action"
+          :disabled="updates.status === 'checking' || updates.status === 'downloading'"
+          @click="updates.checkNow()"
+        >
+          <RefreshCw class="size-4" :class="updates.status === 'checking' && 'animate-spin'" /> Check now
         </button>
       </div>
     </section>
