@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Play, SearchX } from "lucide-vue-next";
+import { Play } from "lucide-vue-next";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ArtistLinks from "@/main/components/ArtistLinks.vue";
@@ -11,6 +11,7 @@ import { search, searchMore } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
 import type { SearchFilter, SearchPage } from "@/shared/innertube/model";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -99,10 +100,7 @@ onMounted(load);
       </li>
     </ul>
 
-    <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
-      <p class="font-semibold">Search failed</p>
-      <p class="mt-1 text-ink-soft">{{ error }}</p>
-    </div>
+    <EmptyState v-else-if="error" mood="sleepy" title="Search failed" :message="error"></EmptyState>
 
     <template v-else-if="page">
       <section v-if="page.top && !filterLabel" class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
@@ -138,10 +136,12 @@ onMounted(load);
         <TrackList v-if="page.top.related.length" :items="page.top.related" />
       </section>
 
-      <div v-if="!page.items.length && !page.top" class="mt-10 flex flex-col items-center text-ink-faint">
-        <SearchX class="size-10" />
-        <p class="mt-3 text-sm">No results</p>
-      </div>
+      <EmptyState
+        v-if="!page.items.length && !page.top"
+        mood="sleepy"
+        title="No results"
+        message="Dyno looked everywhere. Try other words or another filter."
+      />
 
       <TrackList v-else-if="asList" :items="page.items" />
       <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-5">

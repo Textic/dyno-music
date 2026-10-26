@@ -6,6 +6,8 @@ import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore, HOME } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
 import type { BrowsePage, Shelf } from "@/shared/innertube/model";
+import DynoMascot from "@/main/components/brand/DynoMascot.vue";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
 
 const player = usePlayerStore();
 
@@ -73,6 +75,10 @@ onMounted(load);
     </section>
 
     <div v-if="loading" class="flex flex-col gap-10" aria-label="Loading recommendations">
+      <div class="flex items-center gap-3 text-sm text-ink-soft">
+        <DynoMascot mood="listening" class="size-14" />
+        Picking music for you…
+      </div>
       <div v-for="n in 3" :key="n" class="flex animate-pulse flex-col gap-3">
         <div class="h-5 w-48 rounded bg-white/10" />
         <div class="flex gap-4 overflow-hidden">
@@ -81,11 +87,9 @@ onMounted(load);
       </div>
     </div>
 
-    <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
-      <p class="font-semibold">Couldn't load your recommendations</p>
-      <p class="mt-1 text-ink-soft">{{ error }}</p>
-      <button class="glass glass-hover mt-3 rounded-xl px-3 py-1.5" @click="load">Try again</button>
-    </div>
+    <EmptyState v-else-if="error" mood="sleepy" title="Couldn't load your recommendations" :message="error">
+      <button class="glass glass-hover rounded-xl px-4 py-2 text-sm" @click="load">Try again</button>
+    </EmptyState>
 
     <template v-else>
       <MediaShelf v-for="(shelf, i) in shelves" :key="i" :shelf="shelf" />

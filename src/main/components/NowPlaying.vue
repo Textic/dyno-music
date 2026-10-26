@@ -8,6 +8,7 @@ import TransportControls from "@/main/components/player/TransportControls.vue";
 import VolumeControl from "@/main/components/player/VolumeControl.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
 
 const player = usePlayerStore();
 const ui = useUiStore();
@@ -105,7 +106,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 
       <aside class="relative hidden w-80 shrink-0 flex-col border-l border-white/10 bg-black/25 lg:flex xl:w-96" aria-label="Up next">
         <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">Up next</h2>
-        <p v-if="!upNext.length" class="px-6 text-sm text-ink-faint">Nothing queued.</p>
+        <EmptyState v-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
         <ol ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
           <li
             v-for="entry in upNext"

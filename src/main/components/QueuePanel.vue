@@ -4,6 +4,7 @@ import { nextTick, ref, watch } from "vue";
 import CoverImage from "@/main/components/CoverImage.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
 
 const player = usePlayerStore();
 const ui = useUiStore();
@@ -51,9 +52,13 @@ watch(
         </button>
       </header>
 
-      <p v-if="!player.queue.length" class="px-5 py-6 text-sm text-ink-faint">
-        The queue is empty. Play something and what comes next shows up here.
-      </p>
+      <EmptyState
+        v-if="!player.queue.length"
+        size="sm"
+        mood="listening"
+        title="The queue is empty"
+        message="Play something and what comes next shows up here."
+      />
 
       <ol ref="list" class="flex-1 overflow-y-auto px-2 pb-3">
         <li

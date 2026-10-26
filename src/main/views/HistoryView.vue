@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { History, LogIn } from "lucide-vue-next";
+import { LogIn } from "lucide-vue-next";
 import { ref, watch } from "vue";
 import MediaShelf from "@/main/components/MediaShelf.vue";
 import { useInfiniteScroll } from "@/main/composables/useInfiniteScroll";
 import { browse, browseMore, HISTORY } from "@/main/services/music";
 import { usePlayerStore } from "@/main/stores/player";
 import type { Shelf } from "@/shared/innertube/model";
+import EmptyState from "@/main/components/brand/EmptyState.vue";
+import DynoMascot from "@/main/components/brand/DynoMascot.vue";
 
 const player = usePlayerStore();
 
@@ -47,7 +49,7 @@ const { sentinel, loadingMore } = useInfiniteScroll(
     <h1 class="text-3xl font-extrabold tracking-tight">History</h1>
 
     <div v-if="!player.signedIn" class="glass flex flex-col items-start gap-3 rounded-3xl p-8">
-      <History class="size-8 text-accent-soft" />
+      <DynoMascot mood="listening" class="size-24" />
       <h2 class="text-xl font-bold">Your history lives in your account</h2>
       <p class="max-w-md text-sm text-ink-soft">
         Sign in to see what you've listened to, here and on your other devices.
@@ -73,13 +75,11 @@ const { sentinel, loadingMore } = useInfiniteScroll(
         </li>
       </ul>
 
-      <div v-else-if="error" class="glass rounded-2xl p-5 text-sm">
-        <p class="font-semibold">Couldn't load your history</p>
-        <p class="mt-1 text-ink-soft">{{ error }}</p>
-        <button class="glass glass-hover mt-3 rounded-xl px-3 py-1.5" @click="load">Try again</button>
-      </div>
+      <EmptyState v-else-if="error" mood="sleepy" title="Couldn't load your history" :message="error">
+      <button class="glass glass-hover rounded-xl px-4 py-2 text-sm" @click="load">Try again</button>
+    </EmptyState>
 
-      <p v-else-if="!shelves.length" class="text-sm text-ink-faint">Nothing played yet.</p>
+      <EmptyState v-else-if="!shelves.length" mood="listening" title="Nothing played yet" message="Play something and it will show up here." />
 
       <MediaShelf v-for="(shelf, i) in shelves" v-else :key="i" :shelf="shelf" />
 

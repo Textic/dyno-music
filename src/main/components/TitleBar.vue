@@ -3,6 +3,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Copy, Minus, Square, X } from "lucide-vue-next";
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import DynoLogo from "@/main/components/brand/DynoLogo.vue";
 import SearchBar from "@/main/components/SearchBar.vue";
 
 // Null in a plain browser (previewing the UI without Tauri).
@@ -28,11 +29,7 @@ const windowButton = "grid h-full w-12 place-items-center text-ink-soft transiti
        that carries it, so each empty area that should drag needs it. -->
   <header class="relative z-40 flex h-14 shrink-0 items-center" data-tauri-drag-region>
     <div class="flex w-[76px] shrink-0 items-center justify-center gap-2.5 lg:w-60 lg:justify-start lg:px-6" data-tauri-drag-region>
-      <div
-        class="pointer-events-none grid size-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-accent to-fuchsia-500 text-base font-black shadow-lg shadow-accent/30"
-      >
-        D
-      </div>
+      <DynoLogo class="pointer-events-none size-8 shrink-0 drop-shadow-[0_6px_14px_rgba(255,77,109,0.35)]" />
       <span class="pointer-events-none hidden text-lg font-extrabold tracking-tight lg:inline">dyno</span>
     </div>
 
