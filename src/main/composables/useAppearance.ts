@@ -55,7 +55,14 @@ export function useAppearance(): void {
     [() => player.track?.thumbnail, () => settings.value?.artworkAccent, settings, systemTheme],
     async ([thumbnail, enabled]) => {
       const mine = ++request;
-      const color = enabled && thumbnail ? await artworkColor(thumbnail) : null;
+      let color = null;
+      if (enabled && thumbnail) {
+        try {
+          color = await artworkColor(thumbnail);
+        } catch (err) {
+          player.log({ level: "warn", message: `Artwork colour of ${thumbnail}: ${err}` });
+        }
+      }
       if (mine !== request) return;
       if (!color) {
         root.style.removeProperty("--color-accent");

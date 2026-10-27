@@ -29,16 +29,14 @@ function toHsl(r: number, g: number, b: number): Hsl {
   return { h: (h * 60 + 360) % 360, s, l };
 }
 
-function loadImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    // The artwork hosts allow it, and without it the canvas can't be read.
-    img.crossOrigin = "anonymous";
-    img.decoding = "async";
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error(`could not load ${url}`));
-    img.src = url;
-  });
+/**
+ * Fetched rather than loaded through an <img>: the same artwork is already on screen without
+ * CORS, and the WebView may hand that copy back, which a canvas then refuses to read.
+ */
+async function loadImage(url: string): Promise<ImageBitmap> {
+  const response = await fetch(url, { mode: "cors", cache: "no-store" });
+  if (!response.ok) throw new Error(`artwork answered ${response.status}`);
+  return createImageBitmap(await response.blob());
 }
 
 function dominantHue(pixels: Uint8ClampedArray): Hsl | null {
@@ -80,22 +78,20 @@ function dominantHue(pixels: Uint8ClampedArray): Hsl | null {
   };
 }
 
-/** The artwork's colour, or null when it has none worth using (or can't be read). */
+/**
+ * The artwork's colour, or null when it has none worth using. Throws when the artwork can't be
+ * read; that isn't remembered, so the next try (say, the next time the song plays) can work.
+ */
 export async function artworkColor(url: string): Promise<Hsl | null> {
   if (cache.has(url)) return cache.get(url)!;
-  let color: Hsl | null = null;
-  try {
-    const img = await loadImage(url);
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = SAMPLE_SIZE;
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    if (context) {
-      context.drawImage(img, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
-      color = dominantHue(context.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE).data);
-    }
-  } catch {
-    // Unreadable artwork keeps the default accent.
-  }
+  const bitmap = await loadImage(url);
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = SAMPLE_SIZE;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) throw new Error("no 2D canvas");
+  context.drawImage(bitmap, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+  bitmap.close();
+  const color = dominantHue(context.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE).data);
   cache.set(url, color);
   return color;
 }
