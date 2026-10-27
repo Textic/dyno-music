@@ -60,6 +60,11 @@ function removeStored(key: string): void {
 export interface CacheOptions<T> {
   /** Also keep it across launches. */
   persist?: boolean;
+  /**
+   * Show a stale entry while refreshing it (the default), or wait for the fresh one instead.
+   * Waiting suits pages whose content reshuffles, where swapping it in later looks like a glitch.
+   */
+  serveStale?: boolean;
   /** Called with the refreshed value when a stale entry was served. */
   onUpdate?: (value: T) => void;
 }
@@ -69,7 +74,7 @@ export interface CacheOptions<T> {
  * they can add continuation items to it without touching the cache.
  */
 export async function cached<T>(key: string, load: () => Promise<T>, options: CacheOptions<T> = {}): Promise<T> {
-  const { persist = true, onUpdate } = options;
+  const { persist = true, serveStale = true, onUpdate } = options;
   const save = (value: T) => {
     const entry = { value, at: Date.now() };
     remember(key, entry);
@@ -77,9 +82,10 @@ export async function cached<T>(key: string, load: () => Promise<T>, options: Ca
   };
 
   const hit = memory.get(key) ?? (persist ? readStored(key) : undefined);
-  if (hit) {
+  const stale = hit && (hit.fromStorage || Date.now() - hit.at > FRESH_FOR_MS);
+  if (hit && !(stale && !serveStale)) {
     remember(key, hit);
-    if (hit.fromStorage || Date.now() - hit.at > FRESH_FOR_MS) {
+    if (stale) {
       // Mark it so the same stale entry isn't refreshed again by every caller meanwhile.
       hit.fromStorage = false;
       hit.at = Date.now();
