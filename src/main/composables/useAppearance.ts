@@ -49,18 +49,25 @@ export function useAppearance(): void {
     else delete root.dataset.motion;
   });
 
-  // Each new artwork measures its colour; a late answer for an older song is dropped.
+  // Each new song measures its colour; a late answer for an older song is dropped.
   let request = 0;
   watch(
-    [() => player.track?.thumbnail, () => settings.value?.artworkAccent, settings, systemTheme],
-    async ([thumbnail, enabled]) => {
+    [() => player.track?.videoId, () => settings.value?.artworkAccent, settings, systemTheme],
+    async ([videoId, enabled]) => {
       const mine = ++request;
+      const thumbnail = player.track?.thumbnail;
       let color = null;
-      if (enabled && thumbnail) {
-        try {
-          color = await artworkColor(thumbnail);
-        } catch (err) {
-          player.log({ level: "warn", message: `Artwork colour of ${thumbnail}: ${err}` });
+      if (enabled && videoId) {
+        // The video's thumbnail first: the artwork host (googleusercontent) answers the app's
+        // own requests for it with 429, while i.ytimg.com serves the same picture readily.
+        for (const url of [`https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`, thumbnail]) {
+          if (!url) continue;
+          try {
+            color = await artworkColor(url);
+            break;
+          } catch (err) {
+            player.log({ level: "warn", message: `Artwork colour of ${url}: ${err}` });
+          }
         }
       }
       if (mine !== request) return;
