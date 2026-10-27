@@ -20,7 +20,7 @@ function openMini(): void {
 <template>
   <!-- The only element with backdrop blur: it floats over scrolling content. -->
   <div
-    class="absolute inset-x-6 bottom-5 z-30 mx-auto flex max-w-5xl items-center gap-5 rounded-3xl border border-white/10 bg-black/40 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+    class="absolute inset-x-6 bottom-5 z-30 mx-auto flex max-w-5xl items-center gap-5 rounded-3xl border border-white/10 bg-black/40 px-4 py-3 shadow-2xl shadow-shade/50 backdrop-blur-2xl"
   >
     <div class="flex min-w-0 flex-1 items-center gap-3">
       <button

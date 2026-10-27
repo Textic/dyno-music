@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ChevronDown, Disc3, ListMusic } from "lucide-vue-next";
+import { ChevronDown, Disc3, ListMusic, MicVocal } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import CoverImage from "@/main/components/CoverImage.vue";
+import LyricsPanel from "@/main/components/LyricsPanel.vue";
 import LikeButtons from "@/main/components/player/LikeButtons.vue";
 import SeekBar from "@/main/components/player/SeekBar.vue";
 import TransportControls from "@/main/components/player/TransportControls.vue";
@@ -14,23 +15,34 @@ const player = usePlayerStore();
 const ui = useUiStore();
 const list = ref<HTMLElement | null>(null);
 
-/** Whether the "Up next" panel is shown; remembered between launches. */
-const QUEUE_KEY = "dyno.nowPlaying.showQueue";
-function readShowQueue(): boolean {
+type Panel = "queue" | "lyrics" | "none";
+
+/** The side panel shown ("Up next", lyrics or nothing); remembered between launches. */
+const PANEL_KEY = "dyno.nowPlaying.panel";
+function readPanel(): Panel {
   try {
-    return localStorage.getItem(QUEUE_KEY) !== "false";
+    const stored = localStorage.getItem(PANEL_KEY);
+    // Older versions only remembered whether "Up next" was hidden.
+    if (localStorage.getItem("dyno.nowPlaying.showQueue") === "false" && !stored) return "none";
+    return stored === "lyrics" || stored === "none" ? stored : "queue";
   } catch {
-    return true;
+    return "queue";
   }
 }
-const showQueue = ref(readShowQueue());
-watch(showQueue, (show) => {
+const panel = ref<Panel>(readPanel());
+watch(panel, (next) => {
   try {
-    localStorage.setItem(QUEUE_KEY, String(show));
+    localStorage.setItem(PANEL_KEY, next);
   } catch {
     // Not remembered; it still works for this session.
   }
 });
+const showPanel = computed(() => panel.value !== "none");
+
+/** The panel button toggles its panel, or switches from the other one. */
+function togglePanel(which: Panel): void {
+  panel.value = panel.value === which ? "none" : which;
+}
 
 const currentIndex = computed(() => player.queue.findIndex((e) => e.selected));
 const upNext = computed(() => player.queue.slice(Math.max(currentIndex.value, 0)));
@@ -56,6 +68,9 @@ watch(
     }
   },
 );
+
+const panelButton =
+  "grid size-10 place-items-center rounded-full bg-black/30 text-ink-soft transition hover:bg-black/50 hover:text-ink";
 
 function onKeydown(event: KeyboardEvent): void {
   if (event.key === "Escape" && ui.nowPlayingOpen && !ui.menu) close();
@@ -96,18 +111,28 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       </button>
 
       <div class="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-8 px-10 py-14">
-        <button
-          class="absolute top-4 right-5 hidden size-10 place-items-center rounded-full bg-black/30 text-ink-soft transition hover:bg-black/50 hover:text-ink lg:grid"
-          :class="showQueue && '!bg-white/15 !text-ink'"
-          :aria-label="showQueue ? 'Hide up next' : 'Show up next'"
-          :title="showQueue ? 'Hide up next' : 'Show up next'"
-          :aria-pressed="showQueue"
-          @click="showQueue = !showQueue"
-        >
-          <ListMusic class="size-5" />
-        </button>
+        <div class="absolute top-4 right-5 hidden gap-2 lg:flex">
+          <button
+            :class="[panelButton, panel === 'lyrics' && '!bg-white/15 !text-ink']"
+            :aria-label="panel === 'lyrics' ? 'Hide lyrics' : 'Show lyrics'"
+            :title="panel === 'lyrics' ? 'Hide lyrics' : 'Show lyrics'"
+            :aria-pressed="panel === 'lyrics'"
+            @click="togglePanel('lyrics')"
+          >
+            <MicVocal class="size-5" />
+          </button>
+          <button
+            :class="[panelButton, panel === 'queue' && '!bg-white/15 !text-ink']"
+            :aria-label="panel === 'queue' ? 'Hide up next' : 'Show up next'"
+            :title="panel === 'queue' ? 'Hide up next' : 'Show up next'"
+            :aria-pressed="panel === 'queue'"
+            @click="togglePanel('queue')"
+          >
+            <ListMusic class="size-5" />
+          </button>
+        </div>
         <div
-          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-black/80"
+          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-shade/80"
         >
           <CoverImage :src="player.track.thumbnail" />
         </div>
@@ -136,19 +161,23 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
            and controls glide to their new centre instead of jumping. -->
       <aside
         class="relative hidden shrink-0 overflow-hidden border-l bg-black/25 transition-[width,opacity,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block"
-        :class="showQueue ? 'w-80 border-white/10 opacity-100 xl:w-96' : 'w-0 border-transparent opacity-0'"
-        :inert="!showQueue"
-        :aria-hidden="!showQueue"
-        aria-label="Up next"
+        :class="showPanel ? 'w-80 border-white/10 opacity-100 xl:w-96' : 'w-0 border-transparent opacity-0'"
+        :inert="!showPanel"
+        :aria-hidden="!showPanel"
+        :aria-label="panel === 'lyrics' ? 'Lyrics' : 'Up next'"
       >
         <div
           class="flex h-full w-80 flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] xl:w-96"
-          :class="showQueue ? 'translate-x-0' : 'translate-x-10'"
+          :class="showPanel ? 'translate-x-0' : 'translate-x-10'"
         >
-          <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">Up next</h2>
-          <EmptyState v-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
+          <h2 class="px-6 pt-6 pb-3 text-sm font-bold tracking-widest text-ink-faint uppercase">
+            {{ panel === "lyrics" ? "Lyrics" : "Up next" }}
+          </h2>
+          <!-- Only looked up while shown, so nothing goes to LRCLIB unless lyrics are open. -->
+          <LyricsPanel v-if="panel === 'lyrics'" />
+          <EmptyState v-else-if="!upNext.length" size="sm" mood="listening" title="Nothing queued" />
           <!-- Re-created on every opening so the songs cascade in again. -->
-          <ol v-if="showQueue" ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
+          <ol v-if="panel === 'queue'" ref="list" class="flex-1 overflow-y-auto px-3 pb-6">
             <li
               v-for="(entry, i) in upNext"
               :key="`${entry.index}-${entry.videoId}`"

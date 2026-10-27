@@ -20,9 +20,10 @@ pub fn emit_ui<S: Serialize + Clone>(app: &AppHandle, event: &str, payload: S) {
     });
 }
 
-/// Tells the player page whether to mute and skip ads.
-pub fn send_skip_ads(app: &AppHandle, on: bool) -> Result<(), String> {
-    player::eval_bridge(app, &format!("setSkipAds({})", serde_json::json!(on)))
+/// Passes the settings the player page acts on itself (ads, audio quality).
+pub fn send_page_settings(app: &AppHandle, settings: &settings::Settings) -> Result<(), String> {
+    let page = json!({ "skipAds": settings.skip_ads, "audioQuality": settings.audio_quality });
+    player::eval_bridge(app, &format!("applySettings({page})"))
 }
 
 /// Async because reading cookies deadlocks on the main thread on Windows.
@@ -40,8 +41,8 @@ pub async fn bridge_ready(
         }
     }
     eprintln!("[bridge] ready: signed in = {}, {}", session.logged_in, session.url);
-    if let Err(err) = send_skip_ads(&app, settings::current(&app).skip_ads) {
-        eprintln!("[bridge] could not send the ad setting: {err}");
+    if let Err(err) = send_page_settings(&app, &settings::current(&app)) {
+        eprintln!("[bridge] could not send the page settings: {err}");
     }
     emit_ui(&app, "player://session", &session);
     *hub.session.lock().unwrap() = Some(session);

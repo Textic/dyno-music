@@ -1,5 +1,6 @@
 // The WebView's own right-click menu (Back, Reload, Inspect…) makes the app feel like a web
-// page. It stays in text fields, for copy and paste, and in development, for Inspect.
+// page. It stays in text fields, for copy and paste. In development, the devtools still open
+// with Ctrl+Shift+I (Cmd+Option+I on macOS).
 
 function isEditable(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
@@ -7,7 +8,6 @@ function isEditable(target: EventTarget | null): boolean {
 }
 
 export function hideNativeMenu(): void {
-  if (import.meta.env.DEV) return;
   document.addEventListener("contextmenu", (event) => {
     if (!isEditable(event.target)) event.preventDefault();
   });

@@ -31,6 +31,9 @@ Early development. Working today, all from the app's own interface:
 - Discord Rich Presence ("Listening to…"), which you can turn off in Settings
 - keyboard shortcuts you can change, optionally working from any app
 - optional ad skipping for accounts without Premium (off by default, in Settings)
+- synced lyrics in the "Now playing" view, from [LRCLIB](https://lrclib.net)
+- dark, light or system theme, an accent colour taken from each song's artwork, and a reduced-motion mode
+- an audio quality setting (low, normal, or high with Premium)
 
 See [TODO.md](TODO.md) for what comes next.
 
@@ -75,6 +78,7 @@ Dyno Music has no analytics, telemetry or servers of its own. It connects only t
 - **YouTube Music and Google** (`music.youtube.com`, `accounts.google.com` and their media servers), to sign in and play music. This is the app's purpose, and it works like the YouTube Music website in a browser; Google's own [privacy policy](https://policies.google.com/privacy) applies. Your session stays on your computer, in the app's local WebView profile.
 - **GitHub** (`github.com`), to check for and download updates of Dyno Music. GitHub sees your IP address and the request, as with any download.
 - **Discord**, only if the Discord app is running and the Rich Presence setting is on (it is on by default; turn it off in Settings). Dyno Music sends the song you're playing to Discord on your computer, which shows it on your profile.
+- **LRCLIB** (`lrclib.net`), only while the lyrics panel is open in "Now playing": Dyno Music sends the song's title, artist, album and length to look up its lyrics. LRCLIB is a free, open lyrics database; it sees your IP address and those details.
 
 Settings are stored only on your computer; your listening history is the one YouTube Music keeps for your account. To remove Dyno Music, uninstall it from Windows Settings → Apps (or delete the app on macOS / remove the package on Linux).
 

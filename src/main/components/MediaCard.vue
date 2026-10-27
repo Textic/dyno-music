@@ -21,7 +21,7 @@ const isCurrent = computed(() => Boolean(props.item.videoId) && player.track?.vi
 <template>
   <div class="group flex w-full min-w-0 flex-col gap-2.5" @contextmenu="ui.openMenu($event, item)">
     <button
-      class="relative aspect-square w-full overflow-hidden bg-white/5 shadow-lg shadow-black/30 transition group-hover:shadow-black/60"
+      class="relative aspect-square w-full overflow-hidden bg-white/5 shadow-lg shadow-shade/30 transition group-hover:shadow-shade/60"
       :class="round ? 'rounded-full' : 'rounded-2xl'"
       :aria-label="`Open ${item.title}`"
       @click="open(item)"
@@ -29,7 +29,7 @@ const isCurrent = computed(() => Boolean(props.item.videoId) && player.track?.vi
       <CoverImage :src="item.thumbnail" lazy class="transition duration-500 group-hover:scale-105" />
       <span
         v-if="playable"
-        class="absolute right-2.5 bottom-2.5 grid size-11 translate-y-2 place-items-center rounded-full bg-accent text-ink opacity-0 shadow-xl shadow-black/50 transition group-hover:translate-y-0 group-hover:opacity-100 hover:scale-105"
+        class="absolute right-2.5 bottom-2.5 grid size-11 translate-y-2 place-items-center rounded-full bg-accent text-ink opacity-0 shadow-xl shadow-shade/50 transition group-hover:translate-y-0 group-hover:opacity-100 hover:scale-105"
         role="button"
         :aria-label="`Play ${item.title}`"
         @click.stop="player.play(item)"

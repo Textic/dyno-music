@@ -93,7 +93,7 @@ onBeforeUnmount(() => {
       >
         <span
           v-if="bubble"
-          class="pointer-events-none absolute bottom-full mb-2 -translate-x-1/2 rounded-lg bg-ink px-2 py-0.5 text-xs font-semibold text-night tabular-nums shadow-lg shadow-black/40"
+          class="pointer-events-none absolute bottom-full mb-2 -translate-x-1/2 rounded-lg bg-ink px-2 py-0.5 text-xs font-semibold text-night tabular-nums shadow-lg shadow-shade/40"
           :style="{ left: `calc(${shown}% + ${(50 - shown) * 0.12}px)` }"
           aria-hidden="true"
         >

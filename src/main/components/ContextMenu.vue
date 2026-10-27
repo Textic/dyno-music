@@ -100,7 +100,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       <div
         ref="panel"
         role="menu"
-        class="fixed min-w-52 rounded-2xl border border-white/10 bg-[#18171f]/95 p-1.5 shadow-2xl shadow-black/60"
+        class="fixed min-w-52 rounded-2xl border border-white/10 bg-surface/95 p-1.5 shadow-2xl shadow-shade/60"
         :style="{ left: `${position.left}px`, top: `${position.top}px` }"
         @click.stop
       >

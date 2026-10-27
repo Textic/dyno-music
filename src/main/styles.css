@@ -7,21 +7,45 @@
   --color-ink-soft: #b9b7c6;
   --color-ink-faint: #7d7a8c;
   --color-night: #08080b;
-  /* Brand accent; will follow the current artwork once colour extraction lands. */
+  /* Menus, dialogs and toasts: solid, so they stay readable over anything. */
+  --color-surface: #18171f;
+  /* Shadows stay dark in both themes. */
+  --color-shade: #000;
+  /* Brand accent; useAppearance swaps it for the current artwork's colour. */
   --color-accent: #ff4d6d;
   --color-accent-soft: #ff8fa3;
+}
+
+/* The light theme flips the palette rather than restyling every component: translucent
+   "white" tints become dark ones on the light background, and "black" scrims over artwork
+   become light veils. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-white: #16141f;
+  --color-black: #fff;
+  --color-ink: #17151f;
+  --color-ink-soft: #4a4658;
+  --color-ink-faint: #75718a;
+  --color-night: #f3f1f7;
+  --color-surface: #fff;
+  --color-accent: #f0365a;
+  --color-accent-soft: #c81e45;
+}
+
+:root {
+  color-scheme: dark;
 }
 
 /* Translucent surface. No backdrop blur here: the ambient background is already blurred once,
    and stacking backdrop-filter on many panels is what makes glassy UIs heavy. */
 @utility glass {
-  background-color: rgb(255 255 255 / 0.055);
-  border: 1px solid rgb(255 255 255 / 0.08);
+  background-color: color-mix(in oklab, var(--color-white) 5.5%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-white) 8%, transparent);
 }
 
 @utility glass-hover {
   &:hover {
-    background-color: rgb(255 255 255 / 0.09);
+    background-color: color-mix(in oklab, var(--color-white) 9%, transparent);
   }
 }
 
@@ -57,7 +81,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgb(255 255 255 / 0.12);
+    background: color-mix(in oklab, var(--color-white) 12%, transparent);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: content-box;
@@ -68,11 +92,22 @@
   }
 }
 
+/* From the system setting, or from Dyno Music's own (data-motion on <html>). */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+:root[data-motion="reduced"] {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

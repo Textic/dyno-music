@@ -56,7 +56,7 @@ async function choose(playlist: MediaItem): Promise<void> {
           role="dialog"
           aria-modal="true"
           aria-labelledby="add-to-playlist-title"
-          class="flex max-h-[70vh] w-full max-w-md flex-col rounded-3xl border border-white/10 bg-[#16151c] shadow-2xl"
+          class="flex max-h-[70vh] w-full max-w-md flex-col rounded-3xl border border-white/10 bg-surface shadow-2xl"
         >
           <header class="flex items-center gap-3 border-b border-white/5 px-5 py-4">
             <div class="min-w-0 flex-1">

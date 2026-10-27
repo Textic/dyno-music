@@ -3,13 +3,14 @@ import { getVersion } from "@tauri-apps/api/app";
 import * as autostart from "@tauri-apps/plugin-autostart";
 import { Download, Eye, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
+import ChoiceSetting from "@/main/components/ChoiceSetting.vue";
 import ShortcutSettings from "@/main/components/ShortcutSettings.vue";
 import ToggleSwitch from "@/main/components/ToggleSwitch.vue";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
 import { useUpdatesStore } from "@/main/stores/updates";
 import * as api from "@/shared/api";
-import type { Settings } from "@/shared/types";
+import type { AudioQuality, Settings, Theme } from "@/shared/types";
 
 const player = usePlayerStore();
 const ui = useUiStore();
@@ -64,6 +65,19 @@ async function signOut(): Promise<void> {
   }
 }
 
+const THEMES: { value: Theme; label: string }[] = [
+  { value: "dark", label: "Dark" },
+  { value: "light", label: "Light" },
+  { value: "system", label: "System" },
+];
+
+const QUALITIES: { value: AudioQuality; label: string }[] = [
+  { value: "auto", label: "Account" },
+  { value: "low", label: "Low" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "High" },
+];
+
 const card = "glass rounded-3xl px-6 py-3";
 const sectionTitle = "mb-2 px-1 text-xs font-semibold tracking-widest text-ink-faint uppercase";
 const action =
@@ -109,15 +123,51 @@ const action =
     </section>
 
     <section>
+      <h2 :class="sectionTitle">Appearance</h2>
+      <div :class="[card, 'divide-y divide-white/5']">
+        <template v-if="settings">
+          <ChoiceSetting
+            :model-value="settings.theme"
+            label="Theme"
+            description="System follows your computer's light or dark mode."
+            :options="THEMES"
+            @update:model-value="update({ theme: $event })"
+          />
+          <ToggleSwitch
+            :model-value="settings.artworkAccent"
+            label="Colour from the artwork"
+            description="Buttons and highlights take the main colour of the song that's playing."
+            @update:model-value="update({ artworkAccent: $event })"
+          />
+          <ToggleSwitch
+            :model-value="settings.reduceMotion"
+            label="Reduce motion"
+            description="Turns off animations and smooth scrolling. Your system's own setting also does this."
+            @update:model-value="update({ reduceMotion: $event })"
+          />
+        </template>
+        <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
+      </div>
+    </section>
+
+    <section>
       <h2 :class="sectionTitle">Playback</h2>
-      <div :class="card">
-        <ToggleSwitch
-          v-if="settings"
-          :model-value="settings.skipAds"
-          label="Skip ads"
-          description="Mutes YouTube Music's ads and skips them as soon as they start. Only matters without Premium."
-          @update:model-value="update({ skipAds: $event })"
-        />
+      <div :class="[card, 'divide-y divide-white/5']">
+        <template v-if="settings">
+          <ChoiceSetting
+            :model-value="settings.audioQuality"
+            label="Audio quality"
+            description="Applies from the next song. Account keeps your YouTube Music setting; High needs Premium."
+            :options="QUALITIES"
+            @update:model-value="update({ audioQuality: $event })"
+          />
+          <ToggleSwitch
+            :model-value="settings.skipAds"
+            label="Skip ads"
+            description="Mutes YouTube Music's ads and skips them as soon as they start. Only matters without Premium."
+            @update:model-value="update({ skipAds: $event })"
+          />
+        </template>
         <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
       </div>
     </section>

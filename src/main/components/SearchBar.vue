@@ -120,7 +120,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onGlobalKeydown));
       v-if="showSuggestions"
       id="search-suggestions"
       role="listbox"
-      class="absolute inset-x-0 top-full mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#16151c]/95 p-1.5 shadow-2xl shadow-black/60"
+      class="absolute inset-x-0 top-full mt-2 overflow-hidden rounded-2xl border border-white/10 bg-surface/95 p-1.5 shadow-2xl shadow-shade/60"
       @mousedown.prevent
     >
       <li v-for="(entry, i) in entries" :key="i" role="option" :aria-selected="i === active">

@@ -170,7 +170,7 @@ pub async fn set_settings(app: AppHandle, store: State<'_, SettingsStore>, mut s
         .map_err(|e| e.to_string())?;
     discord::set_enabled(&app, settings.discord_presence);
     // The player page may still be loading; bridge_ready sends it again then.
-    let _ = crate::bridge::send_skip_ads(&app, settings.skip_ads);
+    let _ = crate::bridge::send_page_settings(&app, &settings);
     let errors = shortcuts::apply(&app, &settings);
     emit_ui(&app, "settings://changed", &settings);
 

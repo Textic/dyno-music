@@ -9,6 +9,28 @@ use tauri::{AppHandle, Manager};
 
 use crate::shortcuts::{self, Bindings};
 
+#[derive(Debug, Clone, Copy, PartialEq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum Theme {
+    #[default]
+    Dark,
+    Light,
+    /// Follows the system's light or dark mode.
+    System,
+}
+
+/// YouTube Music's own audio quality choices; `Auto` leaves the account's setting alone.
+#[derive(Debug, Clone, Copy, PartialEq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AudioQuality {
+    #[default]
+    Auto,
+    Low,
+    Normal,
+    /// Only Premium accounts get it; others play at normal quality.
+    High,
+}
+
 /// Mirrors `Settings` in src/shared/types.ts.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
@@ -22,6 +44,12 @@ pub struct Settings {
     pub discord_presence: bool,
     /// Mutes and skips YouTube Music's ads (accounts without Premium). Off by default.
     pub skip_ads: bool,
+    pub audio_quality: AudioQuality,
+    pub theme: Theme,
+    /// The accent colour follows the current song's artwork.
+    pub artwork_accent: bool,
+    /// Calmer animations, on top of the system's own reduced-motion setting.
+    pub reduce_motion: bool,
     pub shortcuts: Bindings,
 }
 
@@ -32,6 +60,10 @@ impl Default for Settings {
             media_controls: true,
             discord_presence: true,
             skip_ads: false,
+            audio_quality: AudioQuality::Auto,
+            theme: Theme::Dark,
+            artwork_accent: true,
+            reduce_motion: false,
             shortcuts: shortcuts::defaults(),
         }
     }

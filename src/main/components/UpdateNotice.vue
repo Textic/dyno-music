@@ -20,7 +20,7 @@ const visible = computed(
   >
     <div
       v-if="visible"
-      class="absolute right-6 bottom-32 z-30 flex w-80 items-start gap-3 rounded-2xl border border-white/10 bg-[#18171f]/95 p-4 shadow-2xl shadow-black/50"
+      class="absolute right-6 bottom-32 z-30 flex w-80 items-start gap-3 rounded-2xl border border-white/10 bg-surface/95 p-4 shadow-2xl shadow-shade/50"
       role="status"
     >
       <DynoLogo class="size-10 shrink-0" />
