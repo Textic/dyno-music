@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Maximize2, Pause, Pin, PinOff, Play, SkipBack, SkipForward, ThumbsUp } from "lucide-vue-next";
 import { computed, ref } from "vue";
 import CoverImage from "@/main/components/CoverImage.vue";
+import { useAppearance } from "@/main/composables/useAppearance";
 import { formatTime, usePlaybackPosition } from "@/main/composables/usePlaybackPosition";
 import { useShortcuts } from "@/main/composables/useShortcuts";
 import { usePlayerStore } from "@/main/stores/player";
@@ -12,6 +13,7 @@ import * as api from "@/shared/api";
 const player = usePlayerStore();
 const position = usePlaybackPosition();
 useShortcuts();
+useAppearance();
 // Null in a plain browser (previewing the UI without Tauri).
 const appWindow = isTauri() ? getCurrentWindow() : null;
 
@@ -75,7 +77,7 @@ const corner =
       <div class="absolute inset-0 bg-gradient-to-r from-black/55 to-black/30" />
     </div>
 
-    <div class="pointer-events-none size-[84px] shrink-0 overflow-hidden rounded-xl bg-white/5 shadow-lg shadow-black/40">
+    <div class="pointer-events-none size-[84px] shrink-0 overflow-hidden rounded-xl bg-white/5 shadow-lg shadow-shade/40">
       <CoverImage :src="player.track?.thumbnail" />
     </div>
 

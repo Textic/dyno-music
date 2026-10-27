@@ -50,7 +50,7 @@ const windowButton = "grid h-full w-12 place-items-center text-ink-soft transiti
         <Square v-else class="size-3.5" />
       </button>
       <button
-        :class="[windowButton, 'h-9 hover:!bg-rose-600 hover:!text-white']"
+        :class="[windowButton, 'h-9 hover:!bg-rose-600 hover:!text-[#fff]']"
         aria-label="Close"
         @click="appWindow?.close()"
       >

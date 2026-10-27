@@ -41,7 +41,7 @@ watch(
   >
     <aside
       v-if="ui.queueOpen"
-      class="absolute top-3 right-3 bottom-28 z-20 flex w-80 flex-col rounded-3xl border border-white/10 bg-black/45 shadow-2xl shadow-black/50 backdrop-blur-2xl"
+      class="absolute top-3 right-3 bottom-28 z-20 flex w-80 flex-col rounded-3xl border border-white/10 bg-black/45 shadow-2xl shadow-shade/50 backdrop-blur-2xl"
       aria-label="Queue"
     >
       <header class="flex items-center gap-2 px-5 pt-4 pb-2">

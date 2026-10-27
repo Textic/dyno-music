@@ -1,19 +1,26 @@
 // Injected into music.youtube.com (hidden "player" window) as an initialization script.
 // Rust drives it through window.__dynoBridge; it reports back with the bridge_* commands.
 
-import type { BridgeRequest, PlayerCommand } from "../shared/types";
+import type { AudioQuality, BridgeRequest, PlayerCommand } from "../shared/types";
 import { setSkipAds, startAdSkipper } from "./ads";
 import { handleRequest } from "./innertube";
 import { log, send } from "./ipc";
 import { restoreVolume, runCommand } from "./player";
+import { setAudioQuality } from "./quality";
 import { startHousekeeping } from "./housekeeping";
 import { startQueueWatcher, startStateWatcher } from "./state";
 import { preferEnglish, waitFor, ytcfg, ytmApp } from "./ytm";
 
+interface PageSettings {
+  skipAds: boolean;
+  audioQuality: AudioQuality;
+}
+
 interface DynoBridge {
   command(cmd: PlayerCommand): void;
   request(req: BridgeRequest): void;
-  setSkipAds(on: boolean): void;
+  /** The settings this page acts on itself; Rust sends them on load and on every change. */
+  applySettings(settings: PageSettings): void;
 }
 
 declare global {
@@ -43,7 +50,10 @@ if (window.top === window && location.hostname === "music.youtube.com" && !windo
       runCommand(cmd).catch((err) => log("error", `Command ${cmd.type} failed: ${err}`));
     },
     request: (req) => void handleRequest(req),
-    setSkipAds,
+    applySettings: (settings) => {
+      setSkipAds(settings.skipAds);
+      setAudioQuality(settings.audioQuality);
+    },
   };
   void boot();
 }

@@ -107,7 +107,7 @@ onMounted(load);
 
     <!-- Album or playlist: artwork beside the details. -->
     <header v-else-if="header" class="flex flex-col gap-6 sm:flex-row sm:items-end">
-      <div class="size-52 shrink-0 overflow-hidden rounded-3xl bg-white/5 shadow-2xl shadow-black/60 xl:size-60">
+      <div class="size-52 shrink-0 overflow-hidden rounded-3xl bg-white/5 shadow-2xl shadow-shade/60 xl:size-60">
         <img v-if="header.thumbnail" :src="header.thumbnail" alt="" class="size-full object-cover" />
         <Music v-else class="m-auto size-full p-16 text-ink-faint" />
       </div>

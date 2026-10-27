@@ -114,7 +114,7 @@ onMounted(load);
             v-if="page.top.item.thumbnail"
             :src="page.top.item.thumbnail"
             alt=""
-            class="size-28 object-cover shadow-xl shadow-black/50"
+            class="size-28 object-cover shadow-xl shadow-shade/50"
             :class="page.top.item.kind === 'artist' ? 'rounded-full' : 'rounded-2xl'"
           />
           <div class="min-w-0">
@@ -126,7 +126,7 @@ onMounted(load);
           </div>
           <button
             v-if="page.top.item.videoId || page.top.item.playlistId"
-            class="absolute right-5 bottom-5 grid size-12 place-items-center rounded-full bg-accent opacity-0 shadow-xl shadow-black/50 transition group-hover:opacity-100 hover:scale-105"
+            class="absolute right-5 bottom-5 grid size-12 place-items-center rounded-full bg-accent opacity-0 shadow-xl shadow-shade/50 transition group-hover:opacity-100 hover:scale-105"
             :aria-label="`Play ${page.top.item.title}`"
             @click.stop="player.play(page.top.item)"
           >

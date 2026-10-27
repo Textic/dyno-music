@@ -16,7 +16,7 @@ const ui = useUiStore();
         <p
           v-for="toast in ui.toasts"
           :key="toast.id"
-          class="rounded-full border border-white/10 bg-[#1b1a22]/95 px-4 py-2 text-sm shadow-xl shadow-black/50"
+          class="rounded-full border border-white/10 bg-surface/95 px-4 py-2 text-sm shadow-xl shadow-shade/50"
           :class="toast.kind === 'error' && 'text-rose-300'"
         >
           {{ toast.message }}

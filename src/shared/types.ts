@@ -77,6 +77,9 @@ export interface BridgeRequest {
   body: Record<string, unknown>;
 }
 
+export type Theme = "dark" | "light" | "system";
+export type AudioQuality = "auto" | "low" | "normal" | "high";
+
 /** Mirrors `Settings` in src-tauri/src/settings.rs. */
 export interface Settings {
   /** Closing the window hides it to the tray and keeps the music playing. */
@@ -87,6 +90,13 @@ export interface Settings {
   discordPresence: boolean;
   /** Mutes and skips YouTube Music's ads. */
   skipAds: boolean;
+  /** "auto" leaves the account's own setting alone; "high" needs Premium. */
+  audioQuality: AudioQuality;
+  theme: Theme;
+  /** The accent colour follows the current song's artwork. */
+  artworkAccent: boolean;
+  /** Calmer animations, on top of the system's own reduced-motion setting. */
+  reduceMotion: boolean;
   shortcuts: Record<ShortcutAction, ShortcutBinding>;
 }
 
