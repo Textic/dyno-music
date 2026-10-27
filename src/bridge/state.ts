@@ -3,7 +3,7 @@ import type { QueueEntry } from "../shared/innertube/model";
 import type { LikeStatus, PlayerState, PlayerStatus } from "../shared/types";
 import { send } from "./ipc";
 import { setOnChange } from "./player";
-import { isAdShowing, pageStore, playerBar, videoElement, ytPlayer } from "./ytm";
+import { isAdShowing, pageStore, playerBar, sliderVolume, videoElement, ytPlayer } from "./ytm";
 
 const POLL_MS = 500;
 /** While playing, position updates go out at most this often; the UI interpolates in between. */
@@ -52,7 +52,7 @@ function readState(): PlayerState {
         }
       : null,
     positionSec: player?.getCurrentTime() ?? video?.currentTime ?? 0,
-    volume: player?.getVolume() ?? (video ? video.volume * 100 : 100),
+    volume: sliderVolume() ?? player?.getVolume() ?? (video ? video.volume * 100 : 100),
     muted: player?.isMuted() ?? video?.muted ?? false,
     isAd: isAdShowing(),
     repeat: pageStore()?.getState().queue?.repeatMode ?? "NONE",
@@ -88,7 +88,7 @@ export function startStateWatcher(): void {
   for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "loadedmetadata"]) {
     document.addEventListener(type, () => push(true), true);
   }
-  // A volume change fires this for every step of its ramp; only a changed state is worth sending.
+  // Scrolling the volume fires this many times a second; only a changed state is worth sending.
   document.addEventListener("volumechange", () => push(), true);
 }
 
