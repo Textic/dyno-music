@@ -32,6 +32,7 @@ watch(
     try {
       const result = await fetchLyrics(
         {
+          videoId: track.videoId,
           title: track.title,
           artist: track.artists[0]?.name ?? "",
           album: track.album,
@@ -115,7 +116,7 @@ function seekTo(timeSec: number): void {
       size="sm"
       mood="sleepy"
       title="Couldn't load lyrics"
-      message="LRCLIB didn't answer. Check your connection."
+      message="Neither YouTube Music nor LRCLIB answered. Check your connection."
     />
     <EmptyState v-else-if="lyrics?.kind === 'instrumental'" size="sm" mood="listening" title="Instrumental" />
     <EmptyState
@@ -123,7 +124,7 @@ function seekTo(timeSec: number): void {
       size="sm"
       mood="sleepy"
       title="No lyrics found"
-      message="LRCLIB doesn't have this song yet."
+      message="Neither YouTube Music nor LRCLIB has lyrics for this song."
     />
 
     <ol
@@ -156,7 +157,9 @@ function seekTo(timeSec: number): void {
       {{ lyrics.text }}
     </p>
 
-    <p class="shrink-0 px-6 pt-2 pb-4 text-[11px] text-ink-faint">Lyrics from LRCLIB (lrclib.net)</p>
+    <p v-if="lyrics?.kind === 'synced' || lyrics?.kind === 'plain'" class="shrink-0 px-6 pt-2 pb-4 text-[11px] text-ink-faint">
+      Lyrics from {{ lyrics.source }}
+    </p>
   </div>
 </template>
 

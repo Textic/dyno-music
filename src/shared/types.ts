@@ -71,10 +71,15 @@ export type PlayerCommand =
   | { type: "queueAdd"; videoId?: string | null; playlistId?: string | null; next: boolean };
 
 /** Sent from Rust into the page to run an InnerTube request. */
+/** Asking as YouTube Music's Android app, which gets some things the web player doesn't. */
+export type InnertubeClient = "android";
+
 export interface BridgeRequest {
   id: number;
   endpoint: string;
   body: Record<string, unknown>;
+  /** Unset: the page's own web client. */
+  client?: InnertubeClient | null;
 }
 
 export type Theme = "dark" | "light" | "system";

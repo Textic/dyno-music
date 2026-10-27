@@ -1,7 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { QueueEntry } from "./innertube/model";
-import type { LogEntry, PlayerCommand, PlayerState, SessionInfo, Settings, ShortcutAction } from "./types";
+import type {
+  InnertubeClient,
+  LogEntry,
+  PlayerCommand,
+  PlayerState,
+  SessionInfo,
+  Settings,
+  ShortcutAction,
+} from "./types";
 
 export interface Snapshot {
   session: SessionInfo | null;
@@ -12,8 +20,8 @@ export interface Snapshot {
 
 export const playerCmd = (cmd: PlayerCommand) => invoke<void>("player_cmd", { cmd });
 
-export const ytmApi = <T = unknown>(endpoint: string, body: Record<string, unknown>) =>
-  invoke<T>("ytm_api", { endpoint, body });
+export const ytmApi = <T = unknown>(endpoint: string, body: Record<string, unknown>, client?: InnertubeClient) =>
+  invoke<T>("ytm_api", { endpoint, body, client: client ?? null });
 
 /** Opens Google's sign-in; resolves once signed in, rejects if cancelled or timed out. */
 export const signIn = () => invoke<void>("sign_in");

@@ -31,7 +31,7 @@ Early development. Working today, all from the app's own interface:
 - Discord Rich Presence ("Listening to…"), which you can turn off in Settings
 - keyboard shortcuts you can change, optionally working from any app
 - optional ad skipping for accounts without Premium (off by default, in Settings)
-- synced lyrics in the "Now playing" view, from [LRCLIB](https://lrclib.net)
+- synced lyrics in the "Now playing" view, from YouTube Music itself or [LRCLIB](https://lrclib.net), whichever has the better version
 - dark, light or system theme, an accent colour taken from each song's artwork, and a reduced-motion mode
 - an audio quality setting (low, normal, or high with Premium)
 
