@@ -2,13 +2,20 @@ import { onScopeDispose, ref, watch } from "vue";
 import { usePlayerStore } from "@/main/stores/player";
 
 /**
- * Current position in seconds, interpolated between the bridge's ~1 s updates.
- * Animates only while playing, so an idle app does not redraw every frame.
+ * How often the interpolated position moves while playing. A progress bar of a few hundred pixels
+ * moves about a pixel per second, so redrawing it on every frame (60–144 times a second) kept the
+ * interface and the GPU busy for nothing; lyrics only need to change line on time.
+ */
+const TICK_MS = 250;
+
+/**
+ * Current position in seconds, interpolated between the bridge's ~1 s updates. Ticks only while
+ * playing and while the window can be seen, so an idle or hidden app does no work.
  */
 export function usePlaybackPosition() {
   const player = usePlayerStore();
   const position = ref(player.state.positionSec);
-  let frame = 0;
+  let timer = 0;
 
   function compute(): number {
     const { positionSec, status, track } = player.state;
@@ -17,22 +24,22 @@ export function usePlaybackPosition() {
     return Math.min(positionSec + elapsed, track?.durationSec || Infinity);
   }
 
-  function tick(): void {
+  function restart(): void {
+    clearInterval(timer);
+    timer = 0;
     position.value = compute();
-    frame = requestAnimationFrame(tick);
+    if (player.state.status === "playing" && document.visibilityState === "visible") {
+      timer = window.setInterval(() => (position.value = compute()), TICK_MS);
+    }
   }
 
-  watch(
-    () => [player.state, player.stateReceivedAt] as const,
-    () => {
-      cancelAnimationFrame(frame);
-      position.value = compute();
-      if (player.state.status === "playing") frame = requestAnimationFrame(tick);
-    },
-    { immediate: true },
-  );
+  watch(() => [player.state, player.stateReceivedAt] as const, restart, { immediate: true });
+  document.addEventListener("visibilitychange", restart);
 
-  onScopeDispose(() => cancelAnimationFrame(frame));
+  onScopeDispose(() => {
+    clearInterval(timer);
+    document.removeEventListener("visibilitychange", restart);
+  });
   return position;
 }
 

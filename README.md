@@ -46,6 +46,25 @@ npm install
 npm run tauri dev
 ```
 
+## Performance
+
+`scripts/measure-usage.ps1` (Windows) measures the CPU and memory of Dyno Music and every WebView2 process it starts, while you use it:
+
+```bash
+pwsh scripts/measure-usage.ps1 -Seconds 30
+```
+
+Measured on 2026-10-27 while playing, with the main window open behind another window (16-core PC, debug build; CPU as a share of one core):
+
+| | CPU | Memory |
+|---|---|---|
+| Hidden YouTube Music page (renderer) | 2.4% | 200 MB |
+| Dyno Music's interface (renderer) | 0.6% | 87 MB |
+| GPU process | 1.1% | 205 MB |
+| Everything (10 processes, Rust app included) | 4.4% | 622 MB |
+
+Before that measurement, the progress bar redrew on every screen frame while playing; the interface and the GPU then used 21% and 27% of a core. It now moves four times a second.
+
 ## Releases and updates
 
 Every merge into `main` releases a new version through [the release workflow](.github/workflows/release.yml):
