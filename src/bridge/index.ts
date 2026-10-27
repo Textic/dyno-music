@@ -2,6 +2,7 @@
 // Rust drives it through window.__dynoBridge; it reports back with the bridge_* commands.
 
 import type { BridgeRequest, PlayerCommand } from "../shared/types";
+import { setSkipAds, startAdSkipper } from "./ads";
 import { handleRequest } from "./innertube";
 import { log, send } from "./ipc";
 import { restoreVolume, runCommand } from "./player";
@@ -12,6 +13,7 @@ import { preferEnglish, waitFor, ytcfg, ytmApp } from "./ytm";
 interface DynoBridge {
   command(cmd: PlayerCommand): void;
   request(req: BridgeRequest): void;
+  setSkipAds(on: boolean): void;
 }
 
 declare global {
@@ -30,6 +32,7 @@ async function boot(): Promise<void> {
   startStateWatcher();
   startQueueWatcher();
   startHousekeeping();
+  startAdSkipper();
   void restoreVolume();
 }
 
@@ -40,6 +43,7 @@ if (window.top === window && location.hostname === "music.youtube.com" && !windo
       runCommand(cmd).catch((err) => log("error", `Command ${cmd.type} failed: ${err}`));
     },
     request: (req) => void handleRequest(req),
+    setSkipAds,
   };
   void boot();
 }

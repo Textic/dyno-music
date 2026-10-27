@@ -109,6 +109,20 @@ const action =
     </section>
 
     <section>
+      <h2 :class="sectionTitle">Playback</h2>
+      <div :class="card">
+        <ToggleSwitch
+          v-if="settings"
+          :model-value="settings.skipAds"
+          label="Skip ads"
+          description="Mutes YouTube Music's ads and skips them as soon as they start. Only matters without Premium."
+          @update:model-value="update({ skipAds: $event })"
+        />
+        <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
+      </div>
+    </section>
+
+    <section>
       <div class="mb-2 flex items-end justify-between gap-4 px-1">
         <h2 :class="[sectionTitle, '!mb-0 !px-0']">Shortcuts</h2>
         <button

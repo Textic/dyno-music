@@ -7,7 +7,7 @@ use tauri::{AppHandle, Emitter, EventTarget, Manager, State};
 
 use crate::mini::MINI_LABEL;
 use crate::player::PLAYER_LABEL;
-use crate::{auth, discord, media, tray};
+use crate::{auth, discord, media, player, settings, tray};
 use crate::state::{Hub, PlayerState, SessionInfo};
 
 /// Sends an event to our own windows (main and mini player), never to the YouTube Music page.
@@ -18,6 +18,11 @@ pub fn emit_ui<S: Serialize + Clone>(app: &AppHandle, event: &str, payload: S) {
         }
         _ => false,
     });
+}
+
+/// Tells the player page whether to mute and skip ads.
+pub fn send_skip_ads(app: &AppHandle, on: bool) -> Result<(), String> {
+    player::eval_bridge(app, &format!("setSkipAds({})", serde_json::json!(on)))
 }
 
 /// Async because reading cookies deadlocks on the main thread on Windows.
@@ -35,6 +40,9 @@ pub async fn bridge_ready(
         }
     }
     eprintln!("[bridge] ready: signed in = {}, {}", session.logged_in, session.url);
+    if let Err(err) = send_skip_ads(&app, settings::current(&app).skip_ads) {
+        eprintln!("[bridge] could not send the ad setting: {err}");
+    }
     emit_ui(&app, "player://session", &session);
     *hub.session.lock().unwrap() = Some(session);
     Ok(())

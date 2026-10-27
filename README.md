@@ -1,6 +1,6 @@
 # Dyno Music
 
-A lightweight YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
+A lightweight, unofficial YouTube Music desktop client built with [Tauri 2](https://tauri.app), Vue 3, Tailwind CSS 4 and TypeScript.
 
 ## Why this exists
 
@@ -27,6 +27,10 @@ Early development. Working today, all from the app's own interface:
 - play next / add to queue / add to playlist from a right-click menu
 - a full-screen "Now playing" view, a custom title bar, listening history and settings
 - tray icon (keeps playing when the window is closed) and media keys / system media controls
+- a mini player that stays on top of other windows
+- Discord Rich Presence ("Listening to…"), which you can turn off in Settings
+- keyboard shortcuts you can change, optionally working from any app
+- optional ad skipping for accounts without Premium (off by default, in Settings)
 
 See [TODO.md](TODO.md) for what comes next.
 
@@ -49,7 +53,30 @@ Every merge into `main` releases a new version through [the release workflow](.g
 
 Changes that only touch Markdown files don't create a version. Installed copies update themselves from the latest release; updates are signed and checked against the public key in `src-tauri/tauri.conf.json`.
 
-The workflow needs the `TAURI_SIGNING_PRIVATE_KEY` repository secret (the private half of the update key). The builds aren't code-signed, so Windows SmartScreen and macOS Gatekeeper warn on first install.
+The workflow needs the `TAURI_SIGNING_PRIVATE_KEY` repository secret (the private half of the update key). The builds aren't code-signed yet, so Windows SmartScreen and macOS Gatekeeper warn on first install (see [Code signing policy](#code-signing-policy)).
+
+## Code signing policy
+
+Windows releases are meant to be signed through the SignPath Foundation's program for open source projects. Signing isn't active yet; this section describes how it will work.
+
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+Only installers built by [the release workflow](.github/workflows/release.yml) from this repository's `main` branch get signed. No binaries from other projects are signed under this certificate.
+
+Team roles:
+
+- Committers and reviewers: [Textic](https://github.com/Textic)
+- Approvers: [Textic](https://github.com/Textic)
+
+## Privacy
+
+Dyno Music has no analytics, telemetry or servers of its own. It connects only to:
+
+- **YouTube Music and Google** (`music.youtube.com`, `accounts.google.com` and their media servers), to sign in and play music. This is the app's purpose, and it works like the YouTube Music website in a browser; Google's own [privacy policy](https://policies.google.com/privacy) applies. Your session stays on your computer, in the app's local WebView profile.
+- **GitHub** (`github.com`), to check for and download updates of Dyno Music. GitHub sees your IP address and the request, as with any download.
+- **Discord**, only if the Discord app is running and the Rich Presence setting is on (it is on by default; turn it off in Settings). Dyno Music sends the song you're playing to Discord on your computer, which shows it on your profile.
+
+Settings are stored only on your computer; your listening history is the one YouTube Music keeps for your account. To remove Dyno Music, uninstall it from Windows Settings → Apps (or delete the app on macOS / remove the package on Linux).
 
 ## Project layout
 
@@ -73,3 +100,7 @@ No code is copied from these projects; all credit for their ideas goes to their 
 ## Disclaimer
 
 This is an unofficial personal project. It is not affiliated with or endorsed by Google or YouTube, and it relies on undocumented APIs that may change at any time.
+
+## License
+
+[MIT](LICENSE)
