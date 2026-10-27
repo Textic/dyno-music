@@ -60,20 +60,23 @@ const corner =
        it, so text and artwork let clicks through to it. -->
   <div class="group relative isolate flex h-full items-center gap-3 overflow-hidden px-3 pt-3 pb-4" data-tauri-drag-region>
     <div class="pointer-events-none absolute inset-0 -z-10 bg-night" aria-hidden="true">
-      <!-- New artwork fades in over the old, which stays until then (see AmbientBackground). -->
-      <Transition
-        enter-active-class="z-[1] transition-opacity duration-700"
-        leave-active-class="duration-700"
-        enter-from-class="opacity-0"
-      >
-        <img
-          v-if="player.track?.thumbnail"
-          :key="player.track.thumbnail"
-          :src="player.track.thumbnail"
-          alt=""
-          class="absolute inset-0 size-full scale-150 object-cover opacity-60 blur-2xl saturate-150"
-        />
-      </Transition>
+      <!-- New artwork fades in over the old one, which stays until covered (see AmbientBackground). -->
+      <div class="absolute inset-0 opacity-60">
+        <Transition
+          enter-active-class="z-[1] transition-opacity duration-700"
+          leave-active-class="transition-opacity duration-700"
+          enter-from-class="opacity-0"
+          :leave-to-class="player.track?.thumbnail ? '' : 'opacity-0'"
+        >
+          <img
+            v-if="player.track?.thumbnail"
+            :key="player.track.thumbnail"
+            :src="player.track.thumbnail"
+            alt=""
+            class="absolute inset-0 size-full scale-150 object-cover blur-2xl saturate-150"
+          />
+        </Transition>
+      </div>
       <div class="absolute inset-0 bg-gradient-to-r from-black/55 to-black/30" />
     </div>
 
