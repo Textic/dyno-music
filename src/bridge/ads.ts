@@ -1,7 +1,7 @@
-// Gets YouTube Music's ads out of the way for accounts without Premium: an ad is muted the
-// moment it shows up, then skipped (the skip button when there is one, otherwise jumping to
-// its end). Skipping is used instead of blocking ad requests, which YouTube detects and can
-// answer by refusing to play anything at all.
+// Gets YouTube Music's ads out of the way for accounts without Premium, once the user turns it
+// on in Settings: an ad is muted the moment it shows up, then skipped (the skip button when
+// there is one, otherwise jumping to its end). Skipping is used instead of blocking ad
+// requests, which YouTube detects and can answer by refusing to play anything at all.
 
 import { log } from "./ipc";
 import { isAdShowing, videoElement } from "./ytm";
@@ -12,6 +12,11 @@ const SKIP_BUTTONS = ".ytp-skip-ad-button, .ytp-ad-skip-button, .ytp-ad-skip-but
 /** The <video> this module muted, so the user's own mute is never undone. */
 let mutedByUs: HTMLVideoElement | null = null;
 let inAd = false;
+let enabled = false;
+
+export function setSkipAds(on: boolean): void {
+  enabled = on;
+}
 
 function skip(video: HTMLVideoElement | null): void {
   const button = document.querySelector<HTMLElement>(SKIP_BUTTONS);
@@ -26,7 +31,7 @@ function skip(video: HTMLVideoElement | null): void {
 
 function check(): void {
   const video = videoElement();
-  if (isAdShowing()) {
+  if (enabled && isAdShowing()) {
     if (!inAd) {
       inAd = true;
       log("info", "Skipping an ad");

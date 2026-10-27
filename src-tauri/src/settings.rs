@@ -20,6 +20,8 @@ pub struct Settings {
     pub media_controls: bool,
     /// "Listening to…" on the user's Discord profile, while Discord runs on this computer.
     pub discord_presence: bool,
+    /// Mutes and skips YouTube Music's ads (accounts without Premium). Off by default.
+    pub skip_ads: bool,
     pub shortcuts: Bindings,
 }
 
@@ -29,6 +31,7 @@ impl Default for Settings {
             close_to_tray: false,
             media_controls: true,
             discord_presence: true,
+            skip_ads: false,
             shortcuts: shortcuts::defaults(),
         }
     }

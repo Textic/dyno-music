@@ -3,8 +3,11 @@
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 import MiniPlayer from "./MiniPlayer.vue";
+import { hideNativeMenu } from "./nativeMenu";
 import { usePlayerStore } from "./stores/player";
 import "./styles.css";
+
+hideNativeMenu();
 
 createApp(MiniPlayer).use(createPinia()).mount("#app");
 

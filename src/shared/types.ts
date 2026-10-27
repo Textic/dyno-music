@@ -85,6 +85,8 @@ export interface Settings {
   mediaControls: boolean;
   /** "Listening to…" on the user's Discord profile. */
   discordPresence: boolean;
+  /** Mutes and skips YouTube Music's ads. */
+  skipAds: boolean;
   shortcuts: Record<ShortcutAction, ShortcutBinding>;
 }
 

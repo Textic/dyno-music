@@ -21,7 +21,7 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 ## Testing
 
 - [ ] **Try the keyboard shortcuts** by hand, especially a global one used from another app
-- [ ] **Try ad skipping** with an account without Premium: ads should be silent and gone within a second
+- [ ] **Try ad skipping** (Settings → Playback) with an account without Premium: ads should be silent and gone within a second
 
 ## Performance
 
