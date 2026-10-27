@@ -91,14 +91,25 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       class="absolute inset-0 z-[35] flex overflow-hidden bg-night pt-14"
       aria-label="Now playing"
     >
-      <!-- Its own, stronger take on the ambient background. -->
+      <!-- Its own, stronger take on the ambient background, with the same cross-fade between
+           songs (see AmbientBackground). -->
       <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <img
-          v-if="player.track.thumbnail"
-          :src="player.track.thumbnail"
-          alt=""
-          class="absolute inset-0 size-full scale-125 object-cover opacity-70 blur-[100px] saturate-150"
-        />
+        <div class="absolute inset-0 scale-125 opacity-70 blur-[100px] saturate-150">
+          <Transition
+            enter-active-class="z-[1] transition-opacity duration-[1600ms] ease-out"
+            leave-active-class="transition-opacity duration-[1600ms] ease-in"
+            enter-from-class="opacity-0"
+            :leave-to-class="player.track.thumbnail ? '' : 'opacity-0'"
+          >
+            <img
+              v-if="player.track.thumbnail"
+              :key="player.track.thumbnail"
+              :src="player.track.thumbnail"
+              alt=""
+              class="absolute inset-0 size-full object-cover"
+            />
+          </Transition>
+        </div>
         <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/80" />
       </div>
 

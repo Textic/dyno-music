@@ -75,9 +75,14 @@ pub async fn ytm_api(
     hub: State<'_, Hub>,
     endpoint: String,
     body: Value,
+    client: Option<String>,
 ) -> Result<Value, String> {
     if !ALLOWED_ENDPOINTS.contains(&endpoint.as_str()) {
         return Err(format!("endpoint not allowed: {endpoint}"));
+    }
+    // Only the Android client is worth asking for: it gets YouTube Music's timed lyrics.
+    if client.as_deref().is_some_and(|c| c != "android") {
+        return Err(format!("client not allowed: {client:?}"));
     }
     // On startup the UI asks for content before the hidden page has loaded: wait for it.
     let started = tokio::time::Instant::now();
@@ -89,7 +94,7 @@ pub async fn ytm_api(
     }
 
     let (id, rx) = hub.register_request();
-    let request = json!({ "id": id, "endpoint": endpoint, "body": body });
+    let request = json!({ "id": id, "endpoint": endpoint, "body": body, "client": client });
     if let Err(err) = player::eval_bridge(&app, &format!("request({request})")) {
         hub.cancel_request(id);
         return Err(err);

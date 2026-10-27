@@ -19,6 +19,7 @@ const updates = useUpdatesStore();
 const settings = ref<Settings | null>(null);
 const version = ref("");
 const confirmingSignOut = ref(false);
+const confirmingReset = ref(false);
 /** Read from the system itself (e.g. the Windows startup list), not from settings.json. */
 const launchAtLogin = ref<boolean | null>(null);
 
@@ -39,10 +40,11 @@ async function setLaunchAtLogin(on: boolean): Promise<void> {
   }
 }
 
-async function update(patch: Partial<Settings>): Promise<void> {
+/** Saves the settings with `patch` applied, or exactly `patch` when `replace` is set. */
+async function update(patch: Partial<Settings>, replace = false): Promise<void> {
   if (!settings.value) return;
   try {
-    await api.setSettings({ ...settings.value, ...patch });
+    await api.setSettings((replace ? patch : { ...settings.value, ...patch }) as Settings);
   } catch (err) {
     ui.toast(String(err), "error");
   }
@@ -63,6 +65,17 @@ async function signOut(): Promise<void> {
   } catch (err) {
     ui.toast(`Could not sign out: ${err}`, "error");
   }
+}
+
+/**
+ * Every setting back to its default: Rust fills an empty settings object with the defaults
+ * (shortcuts included), and launch at login, which lives in the system, is turned off.
+ */
+async function resetAll(): Promise<void> {
+  confirmingReset.value = false;
+  await update({} as Settings, true);
+  if (launchAtLogin.value) await setLaunchAtLogin(false);
+  ui.toast("Settings reset to their defaults");
 }
 
 const THEMES: { value: Theme; label: string }[] = [
@@ -262,6 +275,28 @@ const action =
           </p>
         </div>
         <button :class="action" @click="api.showPlayer()"><Eye class="size-4" /> Show</button>
+      </div>
+    </section>
+
+    <section>
+      <h2 :class="sectionTitle">Reset</h2>
+      <div :class="[card, 'flex flex-wrap items-center gap-4 py-5']">
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium">Reset all settings</p>
+          <p class="mt-0.5 text-xs text-ink-faint">
+            Puts every setting on this page back to its default, shortcuts included. Your Google
+            session and library stay as they are.
+          </p>
+        </div>
+        <template v-if="confirmingReset">
+          <button :class="action" @click="confirmingReset = false">Cancel</button>
+          <button :class="[action, '!bg-rose-600/80 hover:!bg-rose-600']" :disabled="!settings" @click="resetAll">
+            <RotateCcw class="size-4" /> Reset
+          </button>
+        </template>
+        <button v-else :class="action" :disabled="!settings" @click="confirmingReset = true">
+          <RotateCcw class="size-4" /> Reset all settings
+        </button>
       </div>
     </section>
 
