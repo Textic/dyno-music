@@ -55,7 +55,10 @@ for (const [key, pattern] of Object.entries(PLATFORMS)) {
     console.warn(`No signature for ${asset.name}; ${key} left out`);
     continue;
   }
-  platforms[key] = { signature, url: asset.url };
+  // While the release is a draft, its assets' own URLs point at an "untagged-…" path that stops
+  // working once it is published; the tag's download URL works from then on.
+  const url = `https://github.com/${repo}/releases/download/${tag}/${encodeURIComponent(asset.name)}`;
+  platforms[key] = { signature, url };
 }
 for (const [key, source] of Object.entries(FALLBACKS)) {
   if (platforms[source]) platforms[key] = platforms[source];

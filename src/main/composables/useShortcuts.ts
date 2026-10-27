@@ -1,6 +1,6 @@
 import { isTauri } from "@tauri-apps/api/core";
 import type { UnlistenFn } from "@tauri-apps/api/event";
-import { onBeforeUnmount, onMounted } from "vue";
+import { onBeforeUnmount, onMounted, shallowRef } from "vue";
 import * as api from "@/shared/api";
 import type { Settings, ShortcutAction } from "@/shared/types";
 
@@ -55,11 +55,38 @@ const KEY_NAMES: Record<string, string> = {
   Alt: IS_MAC ? "⌥" : "Alt",
 };
 
-/** Each key of a stored combination, as it reads on a keyboard: "Ctrl+KeyL" → ["Ctrl", "L"]. */
+/**
+ * What each physical key prints on the user's keyboard layout ("Semicolon" → "Ñ" on a Spanish
+ * one). Shortcuts are stored by physical key, so they keep working if the layout changes; only
+ * the labels follow it. Null where the WebView can't tell (WebKit), which falls back to US names.
+ */
+const layout = shallowRef<Map<string, string> | null>(null);
+
+interface KeyboardWithLayout {
+  getLayoutMap(): Promise<Map<string, string>>;
+}
+
+async function readLayout(): Promise<void> {
+  const keyboard = (navigator as Navigator & { keyboard?: KeyboardWithLayout }).keyboard;
+  if (!keyboard?.getLayoutMap) return;
+  try {
+    layout.value = new Map(await keyboard.getLayoutMap());
+  } catch {
+    // Not allowed here; the US names will do.
+  }
+}
+
+void readLayout();
+// The user may switch layouts while the app runs.
+window.addEventListener("focus", () => void readLayout());
+
+/** Each key of a stored combination, as it reads on the keyboard: "Ctrl+KeyL" → ["Ctrl", "L"]. */
 export function keyLabels(keys: string): string[] {
-  return keys.split("+").map(
-    (part) => KEY_NAMES[part] ?? part.replace(/^Key(.)$/, "$1").replace(/^Digit(.)$/, "$1").replace(/^Numpad/, "Num "),
-  );
+  return keys.split("+").map((part) => {
+    const printed = layout.value?.get(part);
+    if (printed && printed.trim()) return printed.toUpperCase();
+    return KEY_NAMES[part] ?? part.replace(/^Key(.)$/, "$1").replace(/^Digit(.)$/, "$1").replace(/^Numpad/, "Num ");
+  });
 }
 
 /** Sliders, switches and buttons don't take text, so shortcuts still work while they have focus. */
