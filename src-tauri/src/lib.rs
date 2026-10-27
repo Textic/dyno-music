@@ -1,6 +1,7 @@
 mod auth;
 mod bridge;
 mod commands;
+mod cover;
 mod discord;
 mod media;
 mod mini;
@@ -38,6 +39,7 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().with_handler(shortcuts::on_global).build())
         .manage(state::Hub::default())
         .manage(shortcuts::Registered::default())
+        .register_asynchronous_uri_scheme_protocol(cover::SCHEME, cover::handle)
         .invoke_handler(tauri::generate_handler![
             commands::player_cmd,
             commands::ytm_api,
