@@ -11,7 +11,6 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 
 - [ ] **Try the keyboard shortcuts** by hand, especially a global one used from another app
 - [ ] **Try the new appearance and playback settings**: light and system themes (main window and mini player), the artwork accent, reduced motion, and audio quality (whether YouTube Music really switches from the next song)
-- [ ] **Try synced lyrics** on several songs, including ones LRCLIB doesn't have
 - [ ] **Try ad skipping** (Settings → Playback) with an account without Premium: ads should be silent and gone within a second
 
 ## Performance
