@@ -11,7 +11,6 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 ## Settings and extras
 
 - [ ] **Audio quality** setting
-- [ ] **Last.fm scrobbling**
 
 ## Distribution
 
