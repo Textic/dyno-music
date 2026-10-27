@@ -3,7 +3,7 @@ import type { QueueEntry } from "../shared/innertube/model";
 import type { LikeStatus, PlayerState, PlayerStatus } from "../shared/types";
 import { send } from "./ipc";
 import { setOnChange } from "./player";
-import { isAdShowing, pageStore, playerBar, sliderVolume, videoElement, ytPlayer } from "./ytm";
+import { isAdShowing, pageStore, playerBar, videoElement, ytPlayer } from "./ytm";
 
 const POLL_MS = 500;
 /** While playing, position updates go out at most this often; the UI interpolates in between. */
@@ -52,7 +52,7 @@ function readState(): PlayerState {
         }
       : null,
     positionSec: player?.getCurrentTime() ?? video?.currentTime ?? 0,
-    volume: sliderVolume() ?? player?.getVolume() ?? (video ? video.volume * 100 : 100),
+    volume: player?.getVolume() ?? (video ? video.volume * 100 : 100),
     muted: player?.isMuted() ?? video?.muted ?? false,
     isAd: isAdShowing(),
     repeat: pageStore()?.getState().queue?.repeatMode ?? "NONE",
@@ -85,11 +85,9 @@ export function startStateWatcher(): void {
   setInterval(() => push(), POLL_MS);
   setOnChange(() => push(true));
   // Media events don't bubble, but they can be captured at the document, whichever <video> emits them.
-  for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "loadedmetadata"]) {
+  for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "volumechange", "loadedmetadata"]) {
     document.addEventListener(type, () => push(true), true);
   }
-  // Scrolling the volume fires this many times a second; only a changed state is worth sending.
-  document.addEventListener("volumechange", () => push(), true);
 }
 
 function readQueue(): QueueEntry[] {

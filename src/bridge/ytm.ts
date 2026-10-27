@@ -71,8 +71,6 @@ interface QueueStoreState {
     nextQueueItemId?: number;
   };
   likeStatus?: { videos?: Record<string, "LIKE" | "DISLIKE" | "INDIFFERENT"> };
-  /** `volume` is the slider position, not the volume heard (see sliderVolume). */
-  player?: { volume?: number };
 }
 
 export interface QueueElement extends HTMLElement {
@@ -107,16 +105,6 @@ export interface PlayerBarElement extends HTMLElement {
 
 export function playerBar(): PlayerBarElement | null {
   return document.querySelector("ytmusic-player-bar");
-}
-
-/**
- * Where YouTube Music's volume slider sits (0–100). With its exponential-volume experiment on,
- * the volume heard is lower than that (the player reports 12 for a slider at 37); Dyno's slider
- * works on this scale, like YouTube Music's.
- */
-export function sliderVolume(): number | null {
-  const volume = pageStore()?.getState().player?.volume;
-  return typeof volume === "number" ? volume : null;
 }
 
 export function isAdShowing(): boolean {

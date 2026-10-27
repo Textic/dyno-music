@@ -1,17 +1,7 @@
 import type { PlayerCommand } from "../shared/types";
 import { innertube } from "./innertube";
 import { log } from "./ipc";
-import {
-  clickPlayerBar,
-  pageStore,
-  playerBar,
-  queueElement,
-  videoElement,
-  waitFor,
-  ytcfg,
-  ytmApp,
-  ytPlayer,
-} from "./ytm";
+import { clickPlayerBar, pageStore, playerBar, queueElement, videoElement, waitFor, ytmApp, ytPlayer } from "./ytm";
 
 /** Called by the state watcher after a command so the UI updates without waiting for the next poll. */
 let onChange: () => void = () => {};
@@ -75,20 +65,11 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
   onChange();
 }
 
-/** The volume slider position the user last chose (YouTube Music's slider scale). */
-const VOLUME_KEY = "dyno.volumeSlider";
-/** Older versions saved the actual volume instead, under this key. */
-const OLD_VOLUME_KEY = "dyno.volume";
+const VOLUME_KEY = "dyno.volume";
 
-/**
- * Sets the volume the way YouTube Music's own slider does. Its slider is a curve (37 on the
- * slider plays at 12) when its exponential-volume experiment is on, and `value` is a slider
- * position. Setting the player's volume as well, as this once did, made every step jump between
- * the curved and the straight value, which sounded like static while scrolling.
- */
 function setVolume(value: number): void {
   const bar = playerBar();
-  if (bar?.updateVolume) return bar.updateVolume(value);
+  if (bar?.updateVolume) bar.updateVolume(value);
   const player = ytPlayer();
   if (player) player.setVolume(value);
   else {
@@ -105,33 +86,18 @@ function saveVolume(value: number): void {
   }
 }
 
-/** The slider position that plays at `volume`: the inverse of YouTube Music's curve, if it's on. */
-function sliderFor(volume: number): number {
-  const flags = ytcfg("EXPERIMENT_FLAGS") as Record<string, unknown> | undefined;
-  if (!flags?.music_web_enable_exponential_volume_control) return volume;
-  const slider = (Math.log2(volume + 7.13431) - 2.82823) / 0.03917;
-  return Math.round(Math.min(100, Math.max(0, slider)));
-}
-
-function readStoredVolume(): number | null {
-  try {
-    const slider = localStorage.getItem(VOLUME_KEY);
-    if (slider !== null && Number.isFinite(Number(slider))) return Number(slider);
-    const old = localStorage.getItem(OLD_VOLUME_KEY);
-    if (old !== null && Number.isFinite(Number(old))) return sliderFor(Number(old));
-  } catch {
-    // No storage: start at YouTube Music's own volume.
-  }
-  return null;
-}
-
 /** YouTube Music starts at full volume; put back the one the user last chose in the app. */
 export async function restoreVolume(): Promise<void> {
-  const saved = readStoredVolume();
-  if (saved === null) return;
+  let stored: string | null = null;
+  try {
+    stored = localStorage.getItem(VOLUME_KEY);
+  } catch {
+    return;
+  }
+  const saved = Number(stored);
+  if (stored === null || !Number.isFinite(saved)) return;
   if (!(await waitFor(() => ytPlayer() !== null, 30_000, 250))) return;
   setVolume(saved);
-  saveVolume(saved);
   onChange();
 }
 
