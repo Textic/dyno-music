@@ -279,16 +279,6 @@ const action =
     </section>
 
     <section>
-      <h2 :class="sectionTitle">About</h2>
-      <div :class="[card, 'py-5 text-sm']">
-        <p class="font-medium">Dyno Music {{ version && `v${version}` }}</p>
-        <p class="mt-1 text-xs text-ink-faint">
-          An unofficial YouTube Music client. Not affiliated with or endorsed by Google or YouTube.
-        </p>
-      </div>
-    </section>
-
-    <section>
       <h2 :class="sectionTitle">Reset</h2>
       <div :class="[card, 'flex flex-wrap items-center gap-4 py-5']">
         <div class="min-w-0 flex-1">
@@ -307,6 +297,16 @@ const action =
         <button v-else :class="action" :disabled="!settings" @click="confirmingReset = true">
           <RotateCcw class="size-4" /> Reset all settings
         </button>
+      </div>
+    </section>
+
+    <section>
+      <h2 :class="sectionTitle">About</h2>
+      <div :class="[card, 'py-5 text-sm']">
+        <p class="font-medium">Dyno Music {{ version && `v${version}` }}</p>
+        <p class="mt-1 text-xs text-ink-faint">
+          An unofficial YouTube Music client. Not affiliated with or endorsed by Google or YouTube.
+        </p>
       </div>
     </section>
   </div>
