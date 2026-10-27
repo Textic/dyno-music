@@ -85,9 +85,11 @@ export function startStateWatcher(): void {
   setInterval(() => push(), POLL_MS);
   setOnChange(() => push(true));
   // Media events don't bubble, but they can be captured at the document, whichever <video> emits them.
-  for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "volumechange", "loadedmetadata"]) {
+  for (const type of ["play", "pause", "playing", "waiting", "ended", "seeked", "loadedmetadata"]) {
     document.addEventListener(type, () => push(true), true);
   }
+  // A volume change fires this for every step of its ramp; only a changed state is worth sending.
+  document.addEventListener("volumechange", () => push(), true);
 }
 
 function readQueue(): QueueEntry[] {

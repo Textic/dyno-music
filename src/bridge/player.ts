@@ -67,7 +67,16 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
 
 const VOLUME_KEY = "dyno.volume";
 
-function setVolume(value: number): void {
+/**
+ * The audio follows a volume change over this long instead of jumping: a jump is a click, and a
+ * fast scroll on the volume slider made a run of them that sounded like static.
+ */
+const VOLUME_RAMP_MS = 120;
+const VOLUME_STEP_MS = 8;
+let volumeRamp = 0;
+
+/** Sets YouTube Music's volume, through its own player so its state agrees. */
+function applyVolume(value: number): void {
   const bar = playerBar();
   if (bar?.updateVolume) bar.updateVolume(value);
   const player = ytPlayer();
@@ -76,6 +85,27 @@ function setVolume(value: number): void {
     const video = videoElement();
     if (video) video.volume = value / 100;
   }
+}
+
+/** Glides the <video> to the new volume in small steps, then hands the value to YouTube Music. */
+function setVolume(value: number): void {
+  clearInterval(volumeRamp);
+  volumeRamp = 0;
+  const video = videoElement();
+  if (!video || video.muted) return applyVolume(value);
+  const from = video.volume;
+  const to = Math.min(1, Math.max(0, value / 100));
+  const steps = Math.max(1, Math.round(VOLUME_RAMP_MS / VOLUME_STEP_MS));
+  let step = 0;
+  volumeRamp = window.setInterval(() => {
+    step += 1;
+    video.volume = from + ((to - from) * step) / steps;
+    if (step < steps) return;
+    clearInterval(volumeRamp);
+    volumeRamp = 0;
+    // The <video> is already there, so YouTube Music setting it again changes nothing audible.
+    applyVolume(value);
+  }, VOLUME_STEP_MS);
 }
 
 function saveVolume(value: number): void {
