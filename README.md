@@ -30,6 +30,7 @@ Early development. Working today, all from the app's own interface:
 - a mini player that stays on top of other windows
 - Discord Rich Presence ("Listening to…"), which you can turn off in Settings
 - keyboard shortcuts you can change, optionally working from any app
+- ads are muted and skipped on accounts without Premium
 
 See [TODO.md](TODO.md) for what comes next.
 

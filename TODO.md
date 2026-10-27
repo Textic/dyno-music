@@ -10,7 +10,6 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 
 ## Settings and extras
 
-- [ ] **No ads**: block or skip YouTube Music's ads for accounts without Premium (the bridge already reports when an ad is playing)
 - [ ] **Audio quality** setting
 - [ ] **Last.fm scrobbling**
 
@@ -22,6 +21,7 @@ What's left for Dyno Music. Finished work lives in the git history and the relea
 ## Testing
 
 - [ ] **Try the keyboard shortcuts** by hand, especially a global one used from another app
+- [ ] **Try ad skipping** with an account without Premium: ads should be silent and gone within a second
 
 ## Performance
 
