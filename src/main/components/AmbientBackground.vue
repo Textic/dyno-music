@@ -13,9 +13,10 @@ const artwork = computed(() => player.track?.thumbnail ?? "");
     <div class="absolute -right-1/4 -bottom-1/3 h-[80vh] w-[70vw] rounded-full bg-indigo-600/20 blur-[140px]" />
 
     <!-- The new artwork fades in on top of the old one, which stays as it is until covered. The
-         images are opaque and the layer holds the transparency: translucent images would show
-         the old one through the new, then darken when it was removed. -->
-    <div class="absolute inset-0 opacity-55">
+         images are sharp and opaque; the layer holds the blur and the transparency. Blurred or
+         translucent images would let the old one show through the new (blur softens the edges
+         too, so the corners did), then change in one step when it was removed. -->
+    <div class="absolute inset-0 scale-125 opacity-55 blur-[90px] saturate-150">
       <Transition
         enter-active-class="z-[1] transition-opacity duration-[1600ms] ease-out"
         leave-active-class="transition-opacity duration-[1600ms] ease-in"
@@ -27,7 +28,7 @@ const artwork = computed(() => player.track?.thumbnail ?? "");
           :key="artwork"
           :src="artwork"
           alt=""
-          class="absolute inset-0 h-full w-full scale-125 object-cover blur-[90px] saturate-150"
+          class="absolute inset-0 h-full w-full object-cover"
         />
       </Transition>
     </div>

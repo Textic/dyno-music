@@ -61,7 +61,7 @@ const corner =
   <div class="group relative isolate flex h-full items-center gap-3 overflow-hidden px-3 pt-3 pb-4" data-tauri-drag-region>
     <div class="pointer-events-none absolute inset-0 -z-10 bg-night" aria-hidden="true">
       <!-- New artwork fades in over the old one, which stays until covered (see AmbientBackground). -->
-      <div class="absolute inset-0 opacity-60">
+      <div class="absolute inset-0 scale-150 opacity-60 blur-2xl saturate-150">
         <Transition
           enter-active-class="z-[1] transition-opacity duration-700"
           leave-active-class="transition-opacity duration-700"
@@ -73,7 +73,7 @@ const corner =
             :key="player.track.thumbnail"
             :src="player.track.thumbnail"
             alt=""
-            class="absolute inset-0 size-full scale-150 object-cover blur-2xl saturate-150"
+            class="absolute inset-0 size-full object-cover"
           />
         </Transition>
       </div>
