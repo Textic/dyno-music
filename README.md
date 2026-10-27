@@ -54,16 +54,16 @@ npm run tauri dev
 pwsh scripts/measure-usage.ps1 -Seconds 30
 ```
 
-Measured on 2026-10-27 while playing, with the main window open behind another window (16-core PC, debug build; CPU as a share of one core):
+Measured on 2026-10-27 while playing (16-core PC, debug build; CPU as a share of one core):
 
-| | CPU | Memory |
+| | Window behind another one | Window in front |
 |---|---|---|
-| Hidden YouTube Music page (renderer) | 2.4% | 200 MB |
-| Dyno Music's interface (renderer) | 0.6% | 87 MB |
-| GPU process | 1.1% | 205 MB |
-| Everything (10 processes, Rust app included) | 4.4% | 622 MB |
+| Hidden YouTube Music page (renderer) | 2.4% · 200 MB | 2.1% · 225 MB |
+| Dyno Music's interface (renderer) | 0.6% · 87 MB | 1.0% · 84 MB |
+| GPU process | 1.1% · 205 MB | 2.0% · 196 MB |
+| Everything (10 processes, Rust app included) | 4.4% · 622 MB | 6.0% · 625 MB |
 
-Before that measurement, the progress bar redrew on every screen frame while playing; the interface and the GPU then used 21% and 27% of a core. It now moves four times a second.
+Before these measurements, the progress bar redrew on every screen frame while playing; the interface and the GPU then used 21% and 27% of a core. It now moves four times a second.
 
 ## Releases and updates
 

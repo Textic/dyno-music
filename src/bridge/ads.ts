@@ -13,9 +13,19 @@ const SKIP_BUTTONS = ".ytp-skip-ad-button, .ytp-ad-skip-button, .ytp-ad-skip-but
 let mutedByUs: HTMLVideoElement | null = null;
 let inAd = false;
 let enabled = false;
+/** Only runs while the setting is on: most people never turn it on. */
+let timer = 0;
 
 export function setSkipAds(on: boolean): void {
   enabled = on;
+  if (on && !timer) {
+    timer = window.setInterval(check, CHECK_EVERY_MS);
+  } else if (!on && timer) {
+    clearInterval(timer);
+    timer = 0;
+    // Turned off in the middle of an ad: give the sound back.
+    check();
+  }
 }
 
 function skip(video: HTMLVideoElement | null): void {
@@ -49,8 +59,4 @@ function check(): void {
     mutedByUs.muted = false;
     mutedByUs = null;
   }
-}
-
-export function startAdSkipper(): void {
-  setInterval(check, CHECK_EVERY_MS);
 }
