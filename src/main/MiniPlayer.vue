@@ -60,11 +60,11 @@ const corner =
        it, so text and artwork let clicks through to it. -->
   <div class="group relative isolate flex h-full items-center gap-3 overflow-hidden px-3 pt-3 pb-4" data-tauri-drag-region>
     <div class="pointer-events-none absolute inset-0 -z-10 bg-night" aria-hidden="true">
+      <!-- New artwork fades in over the old, which stays until then (see AmbientBackground). -->
       <Transition
-        enter-active-class="transition-opacity duration-700"
-        leave-active-class="transition-opacity duration-700"
+        enter-active-class="z-[1] transition-opacity duration-700"
+        leave-active-class="duration-700"
         enter-from-class="opacity-0"
-        leave-to-class="opacity-0"
       >
         <img
           v-if="player.track?.thumbnail"

@@ -12,11 +12,13 @@ const artwork = computed(() => player.track?.thumbnail ?? "");
     <div class="absolute -top-1/3 -left-1/4 h-[80vh] w-[70vw] rounded-full bg-fuchsia-600/20 blur-[140px]" />
     <div class="absolute -right-1/4 -bottom-1/3 h-[80vh] w-[70vw] rounded-full bg-indigo-600/20 blur-[140px]" />
 
+    <!-- The new artwork fades in on top while the old one stays as it is underneath, then
+         goes. Fading both at once added them up mid-way: a brighter flash, then a darker
+         settle once the old one was gone. -->
     <Transition
-      enter-active-class="transition-opacity duration-[1600ms] ease-out"
-      leave-active-class="transition-opacity duration-[1600ms] ease-in"
+      enter-active-class="z-[1] transition-opacity duration-[1600ms] ease-out"
+      leave-active-class="duration-[1600ms]"
       enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
     >
       <img
         v-if="artwork"
