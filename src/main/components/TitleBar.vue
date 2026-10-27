@@ -30,7 +30,7 @@ const windowButton = "grid h-full w-12 place-items-center text-ink-soft transiti
   <header class="relative z-40 flex h-14 shrink-0 items-center" data-tauri-drag-region>
     <div class="flex w-[76px] shrink-0 items-center justify-center gap-2.5 lg:w-60 lg:justify-start lg:px-6" data-tauri-drag-region>
       <DynoLogo class="pointer-events-none size-8 shrink-0 drop-shadow-[0_6px_14px_rgba(255,77,109,0.35)]" />
-      <span class="pointer-events-none hidden text-lg font-extrabold tracking-tight lg:inline">dyno</span>
+      <span class="pointer-events-none hidden text-lg font-extrabold tracking-tight lg:inline">Dyno</span>
     </div>
 
     <div class="min-w-0 flex-1 px-6" data-tauri-drag-region>
