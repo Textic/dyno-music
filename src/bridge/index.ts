@@ -2,7 +2,7 @@
 // Rust drives it through window.__dynoBridge; it reports back with the bridge_* commands.
 
 import type { AudioQuality, BridgeRequest, PlayerCommand } from "../shared/types";
-import { setSkipAds, startAdSkipper } from "./ads";
+import { setSkipAds } from "./ads";
 import { handleRequest } from "./innertube";
 import { log, send } from "./ipc";
 import { restoreVolume, runCommand } from "./player";
@@ -39,7 +39,6 @@ async function boot(): Promise<void> {
   startStateWatcher();
   startQueueWatcher();
   startHousekeeping();
-  startAdSkipper();
   void restoreVolume();
 }
 

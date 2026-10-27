@@ -13,6 +13,41 @@ import {
   type SessionInfo,
 } from "@/shared/types";
 
+/**
+ * The last song shown, kept across launches. YouTube Music takes a few seconds to load and then
+ * restores the song it was on, paused; showing that one meanwhile beats "Nothing playing".
+ */
+const LAST_KEY = "dyno.lastPlayerState";
+
+function readLast(): PlayerState | null {
+  try {
+    const raw = localStorage.getItem(LAST_KEY);
+    if (!raw) return null;
+    const last = JSON.parse(raw) as PlayerState;
+    return last.track ? { ...last, status: "paused", positionSec: 0, isAd: false } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** How long the remembered song may stay up while the page reports nothing playing yet. */
+const PLACEHOLDER_FOR_MS = 15_000;
+
+let lastSaved = "";
+function saveLast(state: PlayerState): void {
+  if (!state.track || state.isAd) return;
+  // Only when the song or its details change, not on every position update.
+  const { positionSec: _position, status: _status, ...lasting } = state;
+  const raw = JSON.stringify(lasting);
+  if (raw === lastSaved) return;
+  lastSaved = raw;
+  try {
+    localStorage.setItem(LAST_KEY, raw);
+  } catch {
+    // Not remembered; the next launch shows "Nothing playing" for a moment.
+  }
+}
+
 /** Mirror of the hidden player, kept up to date from Rust's player://* events. */
 export const usePlayerStore = defineStore("player", () => {
   const state = ref<PlayerState>(IDLE_STATE);
@@ -32,9 +67,15 @@ export const usePlayerStore = defineStore("player", () => {
     if (previous && next && previous.loggedIn !== next.loggedIn) clearCache();
   });
 
+  /** While set, an empty state from the page doesn't replace the remembered song yet. */
+  let placeholderUntil = 0;
+
   function setState(next: PlayerState): void {
+    if (!next.track && performance.now() < placeholderUntil) return;
+    placeholderUntil = 0;
     state.value = next;
     stateReceivedAt.value = performance.now();
+    saveLast(next);
   }
 
   /** UI messages go to the devtools console and the `tauri dev` terminal. */
@@ -64,7 +105,15 @@ export const usePlayerStore = defineStore("player", () => {
     ]);
     const snapshot = await api.getSnapshot();
     session.value = snapshot.session;
-    setState(snapshot.state);
+    // Before the hidden page has reported anything, show the song it's about to restore.
+    const placeholder = !snapshot.session && !snapshot.state.track ? readLast() : null;
+    if (placeholder) {
+      state.value = placeholder;
+      stateReceivedAt.value = performance.now();
+      placeholderUntil = performance.now() + PLACEHOLDER_FOR_MS;
+    } else {
+      setState(snapshot.state);
+    }
     queue.value = snapshot.queue ?? [];
   }
 

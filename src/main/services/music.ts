@@ -36,6 +36,15 @@ export function browse(
 ): Promise<BrowsePage> {
   // History should always be current.
   if (browseId === HISTORY) return fetchBrowse(browseId, params);
+  // Home reshuffles from one visit to the next: waiting for the current one beats showing the
+  // last one and swapping it a few seconds later. It isn't kept across launches either.
+  if (browseId === HOME) {
+    return cached(browseKey(browseId, params), () => fetchBrowse(browseId, params), {
+      ...options,
+      persist: false,
+      serveStale: false,
+    });
+  }
   return cached(browseKey(browseId, params), () => fetchBrowse(browseId, params), options);
 }
 

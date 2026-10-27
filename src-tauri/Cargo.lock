@@ -1001,6 +1001,8 @@ name = "dyno-music"
 version = "0.4.1"
 dependencies = [
  "discord-rich-presence",
+ "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "souvlaki",
@@ -1013,6 +1015,7 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-window-state",
  "tokio",
+ "url",
 ]
 
 [[package]]

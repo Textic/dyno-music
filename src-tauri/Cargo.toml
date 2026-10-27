@@ -30,6 +30,10 @@ tauri-plugin-single-instance = "2.5.4"
 tauri-plugin-window-state = "2.5.0"
 tauri-plugin-autostart = "2.7.0"
 discord-rich-presence = "1.1.0"
+# Already built for the updater; reused to fetch artwork the WebView is refused (cover.rs).
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+url = "2"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
