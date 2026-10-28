@@ -152,7 +152,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
           <CoverImage :src="player.track.thumbnail" />
         </button>
 
-        <div class="flex w-full max-w-xl flex-col items-center gap-1 text-center">
+        <div class="pointer-events-none flex w-full max-w-xl flex-col items-center gap-1 text-center">
           <h1 class="line-clamp-2 text-3xl font-black tracking-tight xl:text-4xl">
             {{ player.state.isAd ? "Ad" : player.track.title }}
           </h1>
