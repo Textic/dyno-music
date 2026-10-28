@@ -136,7 +136,7 @@ function seekTo(timeSec: number): void {
     >
       <li v-for="(line, i) in lyrics.lines" :key="i" :data-line="i">
         <button
-          class="block w-full rounded-lg py-1.5 text-left text-xl leading-snug font-bold tracking-tight transition-[color,opacity,transform] duration-300 select-text"
+          class="block w-full rounded-lg py-1.5 text-left text-xl leading-snug font-bold tracking-tight transition-[color,opacity,transform] duration-300 outline-none"
           :class="
             i === current
               ? 'scale-[1.02] text-ink'
