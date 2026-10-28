@@ -144,7 +144,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
         </div>
         <!-- The artwork itself plays and pauses, like a big play button. -->
         <button
-          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-shade/80 transition hover:brightness-110 active:scale-[0.99]"
+          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-shade/80 transition active:scale-[0.99]"
           :aria-label="player.isPlaying ? 'Pause' : 'Play'"
           :title="player.isPlaying ? 'Pause' : 'Play'"
           @click="player.toggle()"
