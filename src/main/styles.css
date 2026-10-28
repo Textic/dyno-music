@@ -64,6 +64,8 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     user-select: none;
+    /* The WebView's own darkening of a pressed element (touch, pen, some touchpads). */
+    -webkit-tap-highlight-color: transparent;
   }
 
   input,
