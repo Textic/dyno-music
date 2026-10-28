@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Volume2, VolumeX } from "lucide-vue-next";
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { usePlayerStore } from "@/main/stores/player";
 
 const player = usePlayerStore();
@@ -13,6 +13,8 @@ const pending = ref<number | null>(null);
 const shown = computed(() => pending.value ?? Math.round(player.state.volume));
 
 const SEND_EVERY_MS = 80;
+/** If YouTube Music never reports the new volume, stop waiting for it after this long. */
+const CONFIRM_TIMEOUT_MS = 1500;
 /** The wheel has no "release": treat this much quiet as the end of the gesture. */
 const WHEEL_SETTLE_MS = 400;
 /** How long the percentage stays up after the last change. */
@@ -20,6 +22,7 @@ const BUBBLE_FOR_MS = 1000;
 
 let lastSent = 0;
 let settleTimer = 0;
+let confirmTimer = 0;
 let bubbleTimer = 0;
 const bubble = ref(false);
 const pressed = ref(false);
@@ -34,6 +37,8 @@ function showBubble(): void {
 
 /** Applies the value while the gesture goes on, without flooding the player. */
 function preview(value: number): void {
+  // A new gesture: the last one's wait for confirmation no longer applies.
+  clearTimeout(confirmTimer);
   pending.value = value;
   showBubble();
   const now = performance.now();
@@ -43,9 +48,30 @@ function preview(value: number): void {
   }
 }
 
+
+/**
+ * Sends the final value and keeps showing it until the player reports it back. Letting go as soon
+ * as the command was sent showed the previous report for a frame (scrolling down to 6% flashed 11%).
+ */
 function commit(value: number): void {
-  void player.setVolume(value).finally(() => (pending.value = null));
+  // The gesture is over (the wheel's settle timer may be what called this).
+  clearTimeout(settleTimer);
+  settleTimer = 0;
+  pending.value = value;
+  void player.setVolume(value);
+  clearTimeout(confirmTimer);
+  confirmTimer = window.setTimeout(() => (pending.value = null), CONFIRM_TIMEOUT_MS);
 }
+
+watch(
+  () => Math.round(player.state.volume),
+  (reported) => {
+    if (pending.value !== null && !pressed.value && reported === pending.value && !settleTimer) {
+      clearTimeout(confirmTimer);
+      pending.value = null;
+    }
+  },
+);
 
 function onInput(event: Event): void {
   preview(Number((event.target as HTMLInputElement).value));
@@ -76,6 +102,7 @@ function onPointerUp(): void {
 
 onBeforeUnmount(() => {
   clearTimeout(settleTimer);
+  clearTimeout(confirmTimer);
   clearTimeout(bubbleTimer);
 });
 </script>
