@@ -168,6 +168,7 @@ export const usePlayerStore = defineStore("player", () => {
     previous: () => command({ type: "previous" }),
     seek: (positionSec: number) => command({ type: "seek", positionSec }),
     setVolume: (value: number) => command({ type: "volume", value }),
+    setMuted: (muted: boolean) => command({ type: "mute", muted }),
     cycleRepeat: () => command({ type: "repeat" }),
     shuffle: () => command({ type: "shuffle" }),
     like: (status: LikeStatus) => command({ type: "like", status }),

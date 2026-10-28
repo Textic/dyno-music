@@ -40,6 +40,7 @@ pub enum PlayerCommand {
     Previous,
     Seek { position_sec: f64 },
     Volume { value: f64 },
+    Mute { muted: bool },
     Watch {
         video_id: Option<String>,
         playlist_id: Option<String>,

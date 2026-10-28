@@ -109,8 +109,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex items-center gap-2 text-ink-soft" @wheel.prevent="onWheel">
-    <VolumeX v-if="player.state.muted || shown === 0" class="size-[18px] shrink-0" />
-    <Volume2 v-else class="size-[18px] shrink-0" />
+    <!-- Changing the volume while muted unmutes, as in YouTube Music. -->
+    <button
+      class="grid size-7 shrink-0 place-items-center rounded-full transition hover:bg-white/10 hover:text-ink"
+      :aria-label="player.state.muted ? 'Unmute' : 'Mute'"
+      :title="player.state.muted ? 'Unmute' : 'Mute'"
+      :aria-pressed="player.state.muted"
+      @click="player.setMuted(!player.state.muted)"
+    >
+      <VolumeX v-if="player.state.muted || shown === 0" class="size-[18px]" />
+      <Volume2 v-else class="size-[18px]" />
+    </button>
     <div class="relative flex items-center">
       <Transition
         enter-active-class="transition duration-150"
@@ -135,7 +144,8 @@ onBeforeUnmount(() => {
         :value="shown"
         aria-label="Volume"
         :aria-valuetext="`${shown}%`"
-        class="w-24"
+        class="w-24 transition-opacity"
+        :class="player.state.muted && 'opacity-50'"
         @input="onInput"
         @change="onChange"
         @pointerdown="onPointerDown"

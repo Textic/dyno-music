@@ -58,6 +58,7 @@ export type PlayerCommand =
   | { type: "previous" }
   | { type: "seek"; positionSec: number }
   | { type: "volume"; value: number }
+  | { type: "mute"; muted: boolean }
   /** Plays a track, a track within a list, or a whole list (album, playlist, mix). */
   | { type: "watch"; videoId?: string | null; playlistId?: string | null; params?: string | null }
   /** Cycles none → all → one, like YouTube Music's own button. */

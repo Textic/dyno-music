@@ -47,6 +47,9 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
       setVolume(cmd.value);
       saveVolume(cmd.value);
       break;
+    case "mute":
+      setMuted(cmd.muted);
+      break;
     case "watch":
       await watch(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.params ?? undefined);
       break;
@@ -104,6 +107,20 @@ function setVolume(value: number): void {
     const video = videoElement();
     if (video) video.volume = value / 100;
   }
+}
+
+/** Through YouTube Music's slider handler too, so its own state (kept across songs) agrees. */
+function setMuted(muted: boolean): void {
+  const bar = playerBar();
+  const player = ytPlayer();
+  if (bar?.updateVolume && player) return bar.updateVolume(sliderFor(player.getVolume()), muted);
+  if (player) {
+    if (muted) player.mute();
+    else player.unMute();
+    return;
+  }
+  const video = videoElement();
+  if (video) video.muted = muted;
 }
 
 function saveVolume(value: number): void {

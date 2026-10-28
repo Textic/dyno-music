@@ -9,6 +9,8 @@ export interface YtPlayer {
   setVolume(volume: number): void;
   getVolume(): number;
   isMuted(): boolean;
+  mute(): void;
+  unMute(): void;
   /** -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued */
   getPlayerState(): number;
   getCurrentTime(): number;
@@ -99,7 +101,7 @@ export function pageStore() {
 export interface PlayerBarElement extends HTMLElement {
   onRepeatButtonClick?(): void;
   /** Same as moving YouTube Music's own volume slider. */
-  updateVolume?(volume: number): void;
+  updateVolume?(volume: number, muted?: boolean): void;
   queue?: { shuffle?(): void };
 }
 
