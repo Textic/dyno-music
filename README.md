@@ -34,6 +34,7 @@ Early development. Working today, all from the app's own interface:
 - synced lyrics in the "Now playing" view, from YouTube Music itself or [LRCLIB](https://lrclib.net), whichever has the better version
 - dark, light or system theme, an accent colour taken from each song's artwork, and a reduced-motion mode
 - an audio quality setting (low, normal, or high with Premium)
+- a local WebSocket API for other apps (Stream Deck, OBS, bots), off by default: see [docs/websocket-api.md](docs/websocket-api.md)
 
 See [TODO.md](TODO.md) for what comes next.
 
@@ -100,6 +101,8 @@ Dyno Music has no analytics, telemetry or servers of its own. It connects only t
 - **GitHub** (`github.com`), to check for and download updates of Dyno Music. GitHub sees your IP address and the request, as with any download.
 - **Discord**, only if the Discord app is running and the Rich Presence setting is on (it is on by default; turn it off in Settings). Dyno Music sends the song you're playing to Discord on your computer, which shows it on your profile.
 - **LRCLIB** (`lrclib.net`), only while the lyrics panel is open in "Now playing": Dyno Music sends the song's title, artist, album and length to look up its lyrics. LRCLIB is a free, open lyrics database; it sees your IP address and those details.
+
+The developer API (off by default) only listens on `127.0.0.1` and needs a token; it sends nothing anywhere by itself.
 
 Settings are stored only on your computer; your listening history is the one YouTube Music keeps for your account. To remove Dyno Music, uninstall it from Windows Settings → Apps (or delete the app on macOS / remove the package on Linux).
 

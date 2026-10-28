@@ -46,13 +46,11 @@ fn error(status: StatusCode) -> Response<Vec<u8>> {
     Response::builder().status(status).body(Vec::new()).unwrap()
 }
 
-async fn fetch(target: url::Url) -> Response<Vec<u8>> {
-    let response = match client().get(target).send().await {
-        Ok(response) => response,
-        Err(_) => return error(StatusCode::BAD_GATEWAY),
-    };
+/// An image's bytes and content type. Also used for the artwork the developer API sends (api.rs).
+pub async fn download(target: url::Url) -> Result<(Vec<u8>, String), StatusCode> {
+    let response = client().get(target).send().await.map_err(|_| StatusCode::BAD_GATEWAY)?;
     if !response.status().is_success() {
-        return error(response.status());
+        return Err(response.status());
     }
     let content_type = response
         .headers()
@@ -60,15 +58,20 @@ async fn fetch(target: url::Url) -> Response<Vec<u8>> {
         .and_then(|v| v.to_str().ok())
         .unwrap_or("image/jpeg")
         .to_string();
-    match response.bytes().await {
-        Ok(bytes) => Response::builder()
+    let bytes = response.bytes().await.map_err(|_| StatusCode::BAD_GATEWAY)?;
+    Ok((bytes.to_vec(), content_type))
+}
+
+async fn fetch(target: url::Url) -> Response<Vec<u8>> {
+    match download(target).await {
+        Ok((bytes, content_type)) => Response::builder()
             .header(header::CONTENT_TYPE, content_type)
             // Lets the WebView keep it, and the colour sampler read it from a canvas.
             .header(header::CACHE_CONTROL, "public, max-age=86400")
             .header(header::ACCESS_CONTROL_ALLOW_ORIGIN, "*")
-            .body(bytes.to_vec())
+            .body(bytes)
             .unwrap(),
-        Err(_) => error(StatusCode::BAD_GATEWAY),
+        Err(status) => error(status),
     }
 }
 

@@ -4,6 +4,7 @@ import * as autostart from "@tauri-apps/plugin-autostart";
 import { Download, Eye, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import ChoiceSetting from "@/main/components/ChoiceSetting.vue";
+import DeveloperSettings from "@/main/components/DeveloperSettings.vue";
 import ShortcutSettings from "@/main/components/ShortcutSettings.vue";
 import ToggleSwitch from "@/main/components/ToggleSwitch.vue";
 import { usePlayerStore } from "@/main/stores/player";
@@ -262,6 +263,14 @@ const action =
         >
           <RefreshCw class="size-4" :class="updates.status === 'checking' && 'animate-spin'" /> Check now
         </button>
+      </div>
+    </section>
+
+    <section>
+      <h2 :class="sectionTitle">Developers</h2>
+      <div :class="card">
+        <DeveloperSettings v-if="settings" :settings="settings" @update="update" />
+        <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
       </div>
     </section>
 

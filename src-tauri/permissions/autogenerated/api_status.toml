@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-api-status"
+description = "Enables the api_status command without any pre-configured scope."
+commands.allow = ["api_status"]
+
+[[permission]]
+identifier = "deny-api-status"
+description = "Denies the api_status command without any pre-configured scope."
+commands.deny = ["api_status"]

@@ -1,3 +1,4 @@
+mod api;
 mod auth;
 mod bridge;
 mod commands;
@@ -36,6 +37,7 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![HIDDEN_ARG])))
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().with_handler(shortcuts::on_global).build())
         .manage(state::Hub::default())
         .manage(shortcuts::Registered::default())
@@ -54,6 +56,7 @@ pub fn run() {
             commands::set_settings,
             commands::ui_log,
             commands::run_shortcut,
+            commands::api_status,
             bridge::bridge_ready,
             bridge::bridge_state,
             bridge::bridge_queue,
@@ -73,6 +76,10 @@ pub fn run() {
                     eprintln!("[shortcuts] {err}");
                 }
             });
+            app.manage(api::ApiServer::default());
+            if let Err(err) = api::apply(handle, &settings) {
+                eprintln!("[api] {err}");
+            }
             app.manage(settings::SettingsStore(Mutex::new(settings)));
 
             player::create(handle)?;

@@ -167,6 +167,7 @@ pub fn get_settings(store: State<'_, SettingsStore>) -> Settings {
 #[tauri::command]
 pub async fn set_settings(app: AppHandle, store: State<'_, SettingsStore>, mut settings: Settings) -> Result<(), String> {
     settings.shortcuts = shortcuts::complete(settings.shortcuts);
+    settings::complete_api_token(&mut settings);
     settings::save(&app, &settings)?;
     *store.0.lock().unwrap() = settings.clone();
 
@@ -177,14 +178,27 @@ pub async fn set_settings(app: AppHandle, store: State<'_, SettingsStore>, mut s
     discord::set_enabled(&app, settings.discord_presence);
     // The player page may still be loading; bridge_ready sends it again then.
     let _ = crate::bridge::send_page_settings(&app, &settings);
-    let errors = shortcuts::apply(&app, &settings);
+    let mut errors = Vec::new();
+    let shortcut_errors = shortcuts::apply(&app, &settings);
+    if !shortcut_errors.is_empty() {
+        errors.push(format!("Some global shortcuts could not be set: {}", shortcut_errors.join("; ")));
+    }
+    if let Err(err) = crate::api::apply(&app, &settings) {
+        errors.push(err);
+    }
     emit_ui(&app, "settings://changed", &settings);
 
     if errors.is_empty() {
         Ok(())
     } else {
-        Err(format!("Some global shortcuts could not be set: {}", errors.join("; ")))
+        Err(errors.join(". "))
     }
+}
+
+/// Whether the developer API runs, on which port, and how many apps are connected.
+#[tauri::command]
+pub fn api_status(app: AppHandle) -> crate::api::ApiStatus {
+    crate::api::status(&app)
 }
 
 /// Runs a shortcut's action from a key press in a Dyno Music window.

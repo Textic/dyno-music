@@ -83,6 +83,15 @@ export interface BridgeRequest {
   client?: InnertubeClient | null;
 }
 
+/** Mirrors `ApiStatus` in src-tauri/src/api.rs. */
+export interface ApiStatus {
+  running: boolean;
+  port: number;
+  clients: number;
+  /** Why it isn't running although it's turned on. */
+  error: string | null;
+}
+
 export type Theme = "dark" | "light" | "system";
 export type AudioQuality = "auto" | "low" | "normal" | "high";
 
@@ -96,6 +105,10 @@ export interface Settings {
   discordPresence: boolean;
   /** Mutes and skips YouTube Music's ads. */
   skipAds: boolean;
+  /** The developer WebSocket API (docs/websocket-api.md). */
+  apiEnabled: boolean;
+  apiPort: number;
+  apiToken: string;
   /** "auto" leaves the account's own setting alone; "high" needs Premium. */
   audioQuality: AudioQuality;
   theme: Theme;
