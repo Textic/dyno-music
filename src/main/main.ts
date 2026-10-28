@@ -3,6 +3,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import { router } from "./router";
 import { hideNativeMenu } from "./nativeMenu";
+import { reportErrors } from "./reportErrors";
 import { usePlayerStore } from "./stores/player";
 import { useUpdatesStore } from "./stores/updates";
 import "./styles.css";
@@ -10,6 +11,7 @@ import "./styles.css";
 hideNativeMenu();
 
 const app = createApp(App).use(createPinia()).use(router);
+reportErrors(app);
 app.mount("#app");
 
 const player = usePlayerStore();
