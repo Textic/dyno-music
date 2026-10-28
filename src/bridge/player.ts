@@ -84,7 +84,9 @@ const VOLUME_KEY = "dyno.volume";
 function sliderFor(volume: number): number {
   const flags = ytcfg("EXPERIMENT_FLAGS") as Record<string, unknown> | undefined;
   if (!flags?.music_web_enable_exponential_volume_control) return volume;
-  return Math.min(100, Math.max(0, (Math.log2(volume + 7.13431) - 2.82823) / 0.03917));
+  // Aimed a hair above: the round trip through the curve can land at 0.9999…, which YouTube
+  // Music reports as 0, and the slider would fall back a step.
+  return Math.min(100, Math.max(0, (Math.log2(volume + 0.01 + 7.13431) - 2.82823) / 0.03917));
 }
 
 /**
