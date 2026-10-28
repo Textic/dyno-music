@@ -54,11 +54,14 @@
   body,
   #app {
     height: 100%;
+    /* Not scrollable at all, not even by focusing something off screen: only the page inside
+       <main> scrolls. (overflow: hidden still lets the browser scroll it to show a focused
+       element, which shifted the whole app up.) */
+    overflow: clip;
   }
 
   body {
     margin: 0;
-    overflow: hidden;
     background-color: var(--color-night);
     color: var(--color-ink);
     font-family: var(--font-sans);
