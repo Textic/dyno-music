@@ -1,7 +1,17 @@
 import type { PlayerCommand } from "../shared/types";
 import { innertube } from "./innertube";
 import { log } from "./ipc";
-import { clickPlayerBar, pageStore, playerBar, queueElement, videoElement, waitFor, ytmApp, ytPlayer } from "./ytm";
+import {
+  clickPlayerBar,
+  pageStore,
+  playerBar,
+  queueElement,
+  videoElement,
+  waitFor,
+  ytcfg,
+  ytmApp,
+  ytPlayer,
+} from "./ytm";
 
 /** Called by the state watcher after a command so the UI updates without waiting for the next poll. */
 let onChange: () => void = () => {};
@@ -37,6 +47,9 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
       setVolume(cmd.value);
       saveVolume(cmd.value);
       break;
+    case "mute":
+      setMuted(cmd.muted);
+      break;
     case "watch":
       await watch(cmd.videoId ?? undefined, cmd.playlistId ?? undefined, cmd.params ?? undefined);
       break;
@@ -67,15 +80,47 @@ export async function runCommand(cmd: PlayerCommand): Promise<void> {
 
 const VOLUME_KEY = "dyno.volume";
 
+/**
+ * The position on YouTube Music's own volume slider that plays at `volume`. That slider is a
+ * curve when its exponential-volume experiment is on (37 on it plays at 12); this is the inverse.
+ */
+function sliderFor(volume: number): number {
+  const flags = ytcfg("EXPERIMENT_FLAGS") as Record<string, unknown> | undefined;
+  if (!flags?.music_web_enable_exponential_volume_control) return volume;
+  // Aimed a hair above: the round trip through the curve can land at 0.9999…, which YouTube
+  // Music reports as 0, and the slider would fall back a step.
+  return Math.min(100, Math.max(0, (Math.log2(volume + 0.01 + 7.13431) - 2.82823) / 0.03917));
+}
+
+/**
+ * Sets the volume heard to `value` with one call, through YouTube Music's slider handler so its
+ * own state agrees. It once called that handler with `value` itself and then set the player to
+ * `value` too: every step went through the curved volume first (near silence below 5%, and a 0
+ * muted the player), so dragging low made the sound cut in and out.
+ */
 function setVolume(value: number): void {
   const bar = playerBar();
-  if (bar?.updateVolume) bar.updateVolume(value);
+  if (bar?.updateVolume) return bar.updateVolume(sliderFor(value));
   const player = ytPlayer();
   if (player) player.setVolume(value);
   else {
     const video = videoElement();
     if (video) video.volume = value / 100;
   }
+}
+
+/** Through YouTube Music's slider handler too, so its own state (kept across songs) agrees. */
+function setMuted(muted: boolean): void {
+  const bar = playerBar();
+  const player = ytPlayer();
+  if (bar?.updateVolume && player) bar.updateVolume(sliderFor(player.getVolume()), muted);
+  // And straight to the player as well, in case the slider handler left it as it was.
+  if (player && player.isMuted() !== muted) {
+    if (muted) player.mute();
+    else player.unMute();
+  }
+  const video = videoElement();
+  if (video && video.muted !== muted) video.muted = muted;
 }
 
 function saveVolume(value: number): void {

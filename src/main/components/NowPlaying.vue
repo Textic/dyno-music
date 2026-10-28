@@ -142,13 +142,17 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
             <ListMusic class="size-5" />
           </button>
         </div>
-        <div
-          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-shade/80"
+        <!-- The artwork itself plays and pauses, like a big play button. -->
+        <button
+          class="aspect-square w-[min(52vh,42vw)] overflow-hidden rounded-[2rem] bg-white/5 shadow-[0_40px_120px_-20px] shadow-shade/80 transition active:scale-[0.99]"
+          :aria-label="player.isPlaying ? 'Pause' : 'Play'"
+          :title="player.isPlaying ? 'Pause' : 'Play'"
+          @click="player.toggle()"
         >
           <CoverImage :src="player.track.thumbnail" />
-        </div>
+        </button>
 
-        <div class="flex w-full max-w-xl flex-col items-center gap-1 text-center">
+        <div class="pointer-events-none flex w-full max-w-xl flex-col items-center gap-1 text-center">
           <h1 class="line-clamp-2 text-3xl font-black tracking-tight xl:text-4xl">
             {{ player.state.isAd ? "Ad" : player.track.title }}
           </h1>
