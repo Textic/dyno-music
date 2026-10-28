@@ -113,14 +113,18 @@ function setVolume(value: number): void {
 function setMuted(muted: boolean): void {
   const bar = playerBar();
   const player = ytPlayer();
-  if (bar?.updateVolume && player) return bar.updateVolume(sliderFor(player.getVolume()), muted);
-  if (player) {
+  if (bar?.updateVolume && player) bar.updateVolume(sliderFor(player.getVolume()), muted);
+  // And straight to the player as well, in case the slider handler left it as it was.
+  if (player && player.isMuted() !== muted) {
     if (muted) player.mute();
     else player.unMute();
-    return;
   }
   const video = videoElement();
-  if (video) video.muted = muted;
+  if (video && video.muted !== muted) video.muted = muted;
+  log(
+    "info",
+    `Mute ${muted}: slider handler ${bar?.updateVolume ? "found" : "missing"}, player muted ${player?.isMuted()}, video muted ${video?.muted}`,
+  );
 }
 
 function saveVolume(value: number): void {
