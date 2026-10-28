@@ -224,7 +224,11 @@ const action =
               <LogOut class="size-4" /> Sign out
             </button>
           </template>
-          <button v-else :class="action" @click="confirmingSignOut = true">
+          <button
+            v-else
+            :class="[action, '!border-rose-500/40 !bg-rose-600/15 text-rose-500 hover:!bg-rose-600/25']"
+            @click="confirmingSignOut = true"
+          >
             <LogOut class="size-4" /> Sign out
           </button>
         </template>
