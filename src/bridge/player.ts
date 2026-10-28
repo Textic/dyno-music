@@ -121,10 +121,6 @@ function setMuted(muted: boolean): void {
   }
   const video = videoElement();
   if (video && video.muted !== muted) video.muted = muted;
-  log(
-    "info",
-    `Mute ${muted}: slider handler ${bar?.updateVolume ? "found" : "missing"}, player muted ${player?.isMuted()}, video muted ${video?.muted}`,
-  );
 }
 
 function saveVolume(value: number): void {
