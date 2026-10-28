@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getVersion } from "@tauri-apps/api/app";
 import * as autostart from "@tauri-apps/plugin-autostart";
-import { Download, Eye, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-vue-next";
+import { Download, LogIn, LogOut, RefreshCw, RotateCcw } from "lucide-vue-next";
 import { onMounted, ref } from "vue";
 import ChoiceSetting from "@/main/components/ChoiceSetting.vue";
 import DeveloperSettings from "@/main/components/DeveloperSettings.vue";
@@ -271,19 +271,6 @@ const action =
       <div :class="card">
         <DeveloperSettings v-if="settings" :settings="settings" @update="update" />
         <p v-else class="py-3 text-sm text-ink-faint">Loading…</p>
-      </div>
-    </section>
-
-    <section>
-      <h2 :class="sectionTitle">Troubleshooting</h2>
-      <div :class="[card, 'flex flex-wrap items-center gap-4 py-5']">
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium">YouTube Music window</p>
-          <p class="mt-0.5 text-xs text-ink-faint">
-            Shows the hidden page that plays your music. Closing it hides it again; playback continues.
-          </p>
-        </div>
-        <button :class="action" @click="api.showPlayer()"><Eye class="size-4" /> Show</button>
       </div>
     </section>
 
