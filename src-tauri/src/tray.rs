@@ -14,7 +14,11 @@ pub struct Tray {
     toggle: MenuItem<Wry>,
 }
 
+/// Brings the main window back. The mini player stands in for it, so it's hidden.
 pub fn show_main_window(app: &AppHandle) {
+    if let Some(mini) = app.get_webview_window(crate::mini::MINI_LABEL) {
+        let _ = mini.hide();
+    }
     if let Some(window) = app.get_webview_window(MAIN_WINDOW) {
         let _ = window.show();
         let _ = window.unminimize();

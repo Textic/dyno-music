@@ -26,10 +26,8 @@ pub fn open(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
+/// Hides the mini player (show_main_window does) and brings the main window back.
 pub fn close(app: &AppHandle) {
-    if let Some(window) = app.get_webview_window(MINI_LABEL) {
-        let _ = window.hide();
-    }
     tray::show_main_window(app);
 }
 
