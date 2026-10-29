@@ -40,6 +40,8 @@ const ARTWORK_SIZE: u32 = 144;
 /// How long to keep trying to bind a port the previous server is still letting go of.
 const BIND_RETRY: Duration = Duration::from_millis(100);
 const BIND_ATTEMPTS: u32 = 10;
+/// How long to wait for a closing client to take its answer.
+const CLOSE_GRACE: Duration = Duration::from_secs(1);
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -275,6 +277,15 @@ async fn client(mut socket: WebSocket, context: Context) {
     for message in snapshot(&app) {
         open = open && send(&mut socket, message).await;
     }
+    // The state just sent is the one later reports are compared with; without it, the first
+    // report after connecting was sent although only the position had moved on.
+    {
+        let mut sent = server.sent.lock().unwrap();
+        if sent.is_none() {
+            let state = app.state::<Hub>().player.lock().unwrap().clone();
+            *sent = Some(Sent { state, at: *server.state_at.lock().unwrap() });
+        }
+    }
     while open {
         tokio::select! {
             incoming = socket.recv() => match incoming {
@@ -283,7 +294,13 @@ async fn client(mut socket: WebSocket, context: Context) {
                         open = open && send(&mut socket, reply).await;
                     }
                 }
-                Some(Ok(Message::Close(_))) | Some(Err(_)) | None => open = false,
+                // The library queues the answer to a close and sends it on the next read: read
+                // once more, so the client sees a clean close (1000) rather than a drop (1006).
+                Some(Ok(Message::Close(_))) => {
+                    let _ = tokio::time::timeout(CLOSE_GRACE, socket.recv()).await;
+                    open = false;
+                }
+                Some(Err(_)) | None => open = false,
                 // Pings are answered by the library; binary messages mean nothing here.
                 Some(Ok(_)) => {}
             },
