@@ -64,12 +64,14 @@ pub fn bridge_state(app: AppHandle, hub: State<'_, Hub>, state: PlayerState) {
     tray::update(&app, &state);
     media::update(&app, &state, track_changed);
     discord::update(&app, &state);
+    crate::api::on_state(&app, &state);
 }
 
 #[tauri::command]
 pub fn bridge_queue(app: AppHandle, hub: State<'_, Hub>, queue: Value) {
     *hub.queue.lock().unwrap() = queue.clone();
     emit_ui(&app, "player://queue", &queue);
+    crate::api::on_queue(&app, &queue);
 }
 
 #[tauri::command]

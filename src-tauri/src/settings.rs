@@ -44,6 +44,11 @@ pub struct Settings {
     pub discord_presence: bool,
     /// Mutes and skips YouTube Music's ads (accounts without Premium). Off by default.
     pub skip_ads: bool,
+    /// The local WebSocket API other apps control Dyno Music with (api.rs). Off by default.
+    pub api_enabled: bool,
+    pub api_port: u16,
+    /// Clients must send it to connect; generated when empty (so clearing it makes a new one).
+    pub api_token: String,
     pub audio_quality: AudioQuality,
     pub theme: Theme,
     /// The accent colour follows the current song's artwork.
@@ -60,6 +65,9 @@ impl Default for Settings {
             media_controls: true,
             discord_presence: true,
             skip_ads: false,
+            api_enabled: false,
+            api_port: crate::api::DEFAULT_PORT,
+            api_token: String::new(),
             audio_quality: AudioQuality::Auto,
             theme: Theme::Dark,
             artwork_accent: true,
@@ -82,7 +90,15 @@ pub fn load(app: &AppHandle) -> Settings {
         .and_then(|text| serde_json::from_str(&text).ok())
         .unwrap_or_default();
     settings.shortcuts = shortcuts::complete(settings.shortcuts);
+    complete_api_token(&mut settings);
     settings
+}
+
+/// Gives the API a token if it has none: on first start, or after "Regenerate" cleared it.
+pub fn complete_api_token(settings: &mut Settings) {
+    if settings.api_token.trim().is_empty() {
+        settings.api_token = crate::api::new_token();
+    }
 }
 
 pub fn save(app: &AppHandle, settings: &Settings) -> Result<(), String> {

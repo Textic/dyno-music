@@ -2,7 +2,7 @@
   "name": "dyno-music",
   "private": true,
   "license": "MIT",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "dev": "npm run build:bridge && vite",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-autostart": "^2.7.0",
+    "@tauri-apps/plugin-opener": "^2.7.2",
     "@tauri-apps/plugin-process": "^2.4.0",
     "@tauri-apps/plugin-updater": "^2.14.0",
     "lucide-vue-next": "^1.0.0",

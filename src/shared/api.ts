@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { QueueEntry } from "./innertube/model";
 import type {
+  ApiStatus,
   InnertubeClient,
   LogEntry,
   PlayerCommand,
@@ -34,6 +35,8 @@ export const getSettings = () => invoke<Settings>("get_settings");
 /** Saves and applies; rejects, after saving, if a global shortcut could not be registered. */
 export const setSettings = (settings: Settings) => invoke<void>("set_settings", { settings });
 
+export const apiStatus = () => invoke<ApiStatus>("api_status");
+
 export const runShortcut = (action: ShortcutAction) => invoke<void>("run_shortcut", { action });
 
 export const showPlayer = () => invoke<void>("show_player");
@@ -60,3 +63,4 @@ export const onSession = on<SessionInfo>("player://session");
 export const onQueue = on<QueueEntry[]>("player://queue");
 export const onLog = on<LogEntry>("player://log");
 export const onSettings = on<Settings>("settings://changed");
+export const onApiStatus = on<ApiStatus>("api://status");

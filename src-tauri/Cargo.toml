@@ -1,6 +1,6 @@
 [package]
 name = "dyno-music"
-version = "0.4.3"
+version = "0.5.0"
 description = "Unofficial YouTube Music desktop client"
 license = "MIT"
 authors = ["Textic"]
@@ -22,7 +22,7 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = ["tray-icon"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tokio = { version = "1", features = ["sync", "time"] }
+tokio = { version = "1", features = ["sync", "time", "net", "macros", "rt"] }
 souvlaki = "0.8.3"
 tauri-plugin-updater = "2.14.0"
 tauri-plugin-process = "2.4.0"
@@ -34,6 +34,11 @@ discord-rich-presence = "1.1.0"
 reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 url = "2"
+# The developer WebSocket API (api.rs).
+axum = { version = "0.8", default-features = false, features = ["tokio", "http1", "query", "ws"] }
+base64 = "0.22"
+getrandom = "0.3"
+tauri-plugin-opener = "2"
 
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

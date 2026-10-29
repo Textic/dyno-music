@@ -4,7 +4,9 @@ const model = defineModel<boolean>({ required: true });
 </script>
 
 <template>
-  <label class="flex cursor-pointer items-center gap-4 py-3" :class="disabled && 'cursor-default opacity-50'">
+  <!-- relative: the hidden checkbox stays inside the label. Without it, it was placed outside
+       the scrolling page, and focusing it on click scrolled the whole window up. -->
+  <label class="relative flex cursor-pointer items-center gap-4 py-3" :class="disabled && 'cursor-default opacity-50'">
     <span class="min-w-0 flex-1">
       <span class="block text-sm font-medium">{{ label }}</span>
       <span v-if="description" class="mt-0.5 block text-xs text-ink-faint">{{ description }}</span>
