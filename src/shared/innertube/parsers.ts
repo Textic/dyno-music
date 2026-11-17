@@ -71,7 +71,10 @@ function kindOf(endpoint: Json): ItemKind {
   }
   if (endpoint?.watchPlaylistEndpoint) return "playlist";
   const type = pageType(endpoint);
-  return (type && KIND_BY_PAGE_TYPE[type]) || "unknown";
+  if (type && KIND_BY_PAGE_TYPE[type]) return KIND_BY_PAGE_TYPE[type];
+  const browseId: string | undefined = endpoint?.browseEndpoint?.browseId;
+  if (browseId?.startsWith("UC")) return "artist";
+  return "unknown";
 }
 
 /** Artist and album links inside a run list ("Daft Punk • Discovery • 2001"). */
@@ -392,11 +395,15 @@ export function parseQueueItem(node: Json, index: number): QueueEntry | null {
   const r =
     node?.playlistPanelVideoRenderer ?? node?.playlistPanelVideoWrapperRenderer?.primaryRenderer?.playlistPanelVideoRenderer;
   if (!r?.videoId) return null;
+  const bylineRuns = runs(r.longBylineText).length ? runs(r.longBylineText) : runs(r.shortBylineText);
+  const { artists: artistLinks, album } = linksIn(bylineRuns);
   return {
     index,
     videoId: r.videoId,
     title: text(r.title),
     artists: text(r.shortBylineText) || text(r.longBylineText),
+    ...(artistLinks.length ? { artistLinks } : {}),
+    ...(album ? { album } : {}),
     thumbnail: thumbnailOf(r.thumbnail, 120),
     duration: text(r.lengthText) || undefined,
     selected: Boolean(r.selected),

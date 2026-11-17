@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { GripVertical, X } from "lucide-vue-next";
+import { Ellipsis, GripVertical, X } from "lucide-vue-next";
 import { nextTick, ref, watch } from "vue";
+import ArtistLinks from "@/main/components/ArtistLinks.vue";
 import CoverImage from "@/main/components/CoverImage.vue";
+import { queueEntryToMediaItem } from "@/main/composables/useMedia";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
 import EmptyState from "@/main/components/brand/EmptyState.vue";
@@ -69,6 +71,7 @@ watch(
           class="group flex items-center gap-2.5 rounded-xl px-2 py-1.5 transition hover:bg-white/[0.07]"
           :class="[entry.selected && 'bg-white/10', dragOver === entry.index && 'ring-1 ring-accent/60']"
           @dblclick="player.queuePlay(entry.index)"
+          @contextmenu="ui.openMenu($event, queueEntryToMediaItem(entry), { queueIndex: entry.index })"
           @dragstart="dragFrom = entry.index"
           @dragover.prevent="dragOver = entry.index"
           @dragleave="dragOver = null"
@@ -85,9 +88,19 @@ watch(
           </button>
           <div class="min-w-0 flex-1">
             <p class="truncate text-sm font-medium" :class="entry.selected && 'text-accent-soft'">{{ entry.title }}</p>
-            <p class="truncate text-xs text-ink-faint">{{ entry.artists }}</p>
+            <p class="truncate text-xs text-ink-faint">
+              <ArtistLinks v-if="entry.artistLinks?.length" :artists="entry.artistLinks" />
+              <template v-else>{{ entry.artists }}</template>
+            </p>
           </div>
           <span class="text-[11px] text-ink-faint tabular-nums group-hover:hidden">{{ entry.duration }}</span>
+          <button
+            class="hidden size-7 place-items-center rounded-full text-ink-faint hover:bg-white/10 hover:text-ink group-hover:grid"
+            aria-label="More options"
+            @click.stop="ui.openMenu($event, queueEntryToMediaItem(entry), { queueIndex: entry.index })"
+          >
+            <Ellipsis class="size-3.5" />
+          </button>
           <button
             v-if="!entry.selected"
             class="hidden size-7 place-items-center rounded-full text-ink-faint hover:bg-white/10 hover:text-ink group-hover:grid"

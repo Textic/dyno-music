@@ -12,7 +12,7 @@ defineProps<{ artists: Link[] }>();
       <RouterLink
         v-if="artist.browseId"
         :to="browseRoute(artist.browseId)"
-        class="hover:text-ink hover:underline"
+        class="cursor-pointer hover:text-ink hover:underline"
         @click.stop
       >
         {{ artist.name }}

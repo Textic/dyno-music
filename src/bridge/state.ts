@@ -30,6 +30,18 @@ function likeStatusOf(videoId: string): LikeStatus {
   return attribute === "LIKE" || attribute === "DISLIKE" ? attribute : "INDIFFERENT";
 }
 
+function currentQueueItem(videoId: string): QueueEntry | undefined {
+  const items = pageStore()?.getState().queue?.items ?? [];
+  let matched: QueueEntry | undefined;
+  for (let i = 0; i < items.length; i++) {
+    const parsed = parseQueueItem(items[i], i);
+    if (!parsed || parsed.videoId !== videoId) continue;
+    if (parsed.selected) return parsed;
+    matched ??= parsed;
+  }
+  return matched;
+}
+
 function readState(): PlayerState {
   const player = ytPlayer();
   const video = videoElement();
@@ -38,6 +50,12 @@ function readState(): PlayerState {
   const meta = navigator.mediaSession?.metadata;
   const videoId = data?.video_id ?? "";
   const artist = meta?.artist || data?.author || "";
+  const queueEntry = videoId ? currentQueueItem(videoId) : undefined;
+  const artists = queueEntry?.artistLinks?.length
+    ? queueEntry.artistLinks.map((a) => ({ name: a.name, ...(a.browseId ? { id: a.browseId } : {}) }))
+    : artist
+      ? [{ name: artist }]
+      : [];
 
   return {
     status: STATUS_BY_CODE[code] ?? "idle",
@@ -45,8 +63,8 @@ function readState(): PlayerState {
       ? {
           videoId,
           title: meta?.title || data?.title || "",
-          artists: artist ? [{ name: artist }] : [],
-          album: meta?.album || undefined,
+          artists,
+          album: queueEntry?.album?.name || meta?.album || undefined,
           thumbnail: largestArtwork(),
           durationSec: player?.getDuration() || video?.duration || 0,
         }

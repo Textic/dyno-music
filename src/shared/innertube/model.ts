@@ -87,6 +87,9 @@ export interface QueueEntry {
   videoId: string;
   title: string;
   artists: string;
+  /** Clickable artist links when InnerTube includes channel browseIds. */
+  artistLinks?: Link[];
+  album?: Link;
   thumbnail?: string;
   duration?: string;
   selected: boolean;

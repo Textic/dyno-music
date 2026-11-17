@@ -148,8 +148,10 @@ onMounted(load);
       v-if="trackShelf"
       :items="trackShelf.items"
       :context="header?.playlistId"
+      :playlist-browse-id="header?.kind === 'playlist' ? browseId : undefined"
       :show-index="header?.kind === 'album'"
       :show-album="header?.kind !== 'album'"
+      @removed="(i) => trackShelf?.items.splice(i, 1)"
     />
 
     <MediaShelf v-for="(shelf, i) in otherShelves" :key="i" :shelf="shelf" />

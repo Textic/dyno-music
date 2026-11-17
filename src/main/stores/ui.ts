@@ -8,12 +8,21 @@ export interface Toast {
   kind: "info" | "error";
 }
 
-export interface ContextMenuState {
+export interface OpenMenuOptions {
+  /** Album or playlist watch context the item was opened from. */
+  context?: string;
+  /** Browse ID of the playlist page when opened inside a playlist (enables removing owned tracks). */
+  playlistBrowseId?: string;
+  /** Queue index when opened from Up Next / QueuePanel (enables Play now / Remove from queue). */
+  queueIndex?: number;
+  /** Callback invoked if the user removes this item from a playlist. */
+  onRemoved?: () => void;
+}
+
+export interface ContextMenuState extends OpenMenuOptions {
   item: MediaItem;
   x: number;
   y: number;
-  /** Album or playlist the item was opened from. */
-  context?: string;
 }
 
 /** App-wide UI state: menus, dialogs, panels and toasts. */
@@ -25,9 +34,11 @@ export const useUiStore = defineStore("ui", () => {
   const toasts = ref<Toast[]>([]);
   let nextToastId = 0;
 
-  function openMenu(event: MouseEvent, item: MediaItem, context?: string): void {
+  function openMenu(event: MouseEvent, item: MediaItem, contextOrOptions?: string | OpenMenuOptions): void {
     event.preventDefault();
-    menu.value = { item, x: event.clientX, y: event.clientY, context };
+    const options: OpenMenuOptions =
+      typeof contextOrOptions === "string" ? { context: contextOrOptions } : (contextOrOptions ?? {});
+    menu.value = { item, x: event.clientX, y: event.clientY, ...options };
   }
 
   function toast(message: string, kind: Toast["kind"] = "info"): void {

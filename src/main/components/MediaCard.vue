@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Play } from "lucide-vue-next";
 import { computed } from "vue";
+import ArtistLinks from "@/main/components/ArtistLinks.vue";
 import CoverImage from "@/main/components/CoverImage.vue";
 import { useOpenItem } from "@/main/composables/useMedia";
 import { usePlayerStore } from "@/main/stores/player";
@@ -41,7 +42,10 @@ const isCurrent = computed(() => Boolean(props.item.videoId) && player.track?.vi
       <p class="truncate text-sm font-semibold" :class="isCurrent && 'text-accent-soft'" :title="item.title">
         {{ item.title }}
       </p>
-      <p class="line-clamp-2 text-xs text-ink-faint" :title="item.subtitle">{{ item.subtitle }}</p>
+      <p class="line-clamp-2 text-xs text-ink-faint" :title="item.subtitle">
+        <ArtistLinks v-if="item.artists.length" :artists="item.artists" />
+        <template v-else>{{ item.subtitle }}</template>
+      </p>
     </div>
   </div>
 </template>

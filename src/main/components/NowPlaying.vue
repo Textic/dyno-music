@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ChevronDown, Disc3, ListMusic, MicVocal } from "lucide-vue-next";
+import { ChevronDown, Disc3, Ellipsis, ListMusic, MicVocal } from "lucide-vue-next";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import ArtistLinks from "@/main/components/ArtistLinks.vue";
 import CoverImage from "@/main/components/CoverImage.vue";
 import LyricsPanel from "@/main/components/LyricsPanel.vue";
 import LikeButtons from "@/main/components/player/LikeButtons.vue";
 import SeekBar from "@/main/components/player/SeekBar.vue";
 import TransportControls from "@/main/components/player/TransportControls.vue";
 import VolumeControl from "@/main/components/player/VolumeControl.vue";
+import { browseRoute, currentTrackToMediaItem, queueEntryToMediaItem, trackArtistLinks } from "@/main/composables/useMedia";
 import { usePlayerStore } from "@/main/stores/player";
 import { useUiStore } from "@/main/stores/ui";
 import EmptyState from "@/main/components/brand/EmptyState.vue";
@@ -46,6 +48,10 @@ function togglePanel(which: Panel): void {
 
 const currentIndex = computed(() => player.queue.findIndex((e) => e.selected));
 const upNext = computed(() => player.queue.slice(Math.max(currentIndex.value, 0)));
+const currentArtists = computed(() => (player.track && !player.state.isAd ? trackArtistLinks(player.track, player.queue) : []));
+const currentItem = computed(() =>
+  player.track && !player.state.isAd ? currentTrackToMediaItem(player.track, player.queue) : null,
+);
 
 function close(): void {
   ui.nowPlayingOpen = false;
@@ -121,8 +127,20 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
         <ChevronDown class="size-5" />
       </button>
 
-      <div class="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-8 px-10 py-14">
+      <div
+        class="relative flex min-w-0 flex-1 flex-col items-center justify-center gap-8 px-10 py-14"
+        @contextmenu="currentItem && ui.openMenu($event, currentItem)"
+      >
         <div class="absolute top-4 right-5 hidden gap-2 lg:flex">
+          <button
+            v-if="currentItem"
+            :class="panelButton"
+            aria-label="More options"
+            title="More options"
+            @click.stop="ui.openMenu($event, currentItem)"
+          >
+            <Ellipsis class="size-5" />
+          </button>
           <button
             :class="[panelButton, panel === 'lyrics' && '!bg-white/15 !text-ink']"
             :aria-label="panel === 'lyrics' ? 'Hide lyrics' : 'Show lyrics'"
@@ -152,13 +170,24 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
           <CoverImage :src="player.track.thumbnail" />
         </button>
 
-        <div class="pointer-events-none flex w-full max-w-xl flex-col items-center gap-1 text-center">
+        <div class="flex w-full max-w-xl flex-col items-center gap-1 text-center">
           <h1 class="line-clamp-2 text-3xl font-black tracking-tight xl:text-4xl">
             {{ player.state.isAd ? "Ad" : player.track.title }}
           </h1>
-          <p class="truncate text-base text-ink-soft">{{ player.artistNames }}</p>
+          <p class="truncate text-base text-ink-soft">
+            <ArtistLinks v-if="currentArtists.length" :artists="currentArtists" />
+            <template v-else>{{ player.artistNames }}</template>
+          </p>
           <p v-if="player.track.album" class="flex items-center gap-1.5 truncate text-sm text-ink-faint">
-            <Disc3 class="size-3.5" /> {{ player.track.album }}
+            <Disc3 class="size-3.5" />
+            <RouterLink
+              v-if="currentItem?.album?.browseId"
+              :to="browseRoute(currentItem.album.browseId)"
+              class="hover:text-ink hover:underline"
+            >
+              {{ player.track.album }}
+            </RouterLink>
+            <span v-else>{{ player.track.album }}</span>
           </p>
         </div>
 
@@ -200,6 +229,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
               :class="entry.selected && 'bg-white/10'"
               :style="{ animationDelay: `${Math.min(i, 12) * 35}ms` }"
               @dblclick="player.queuePlay(entry.index)"
+              @contextmenu="ui.openMenu($event, queueEntryToMediaItem(entry), { queueIndex: entry.index })"
             >
               <button
                 class="relative size-11 shrink-0 overflow-hidden rounded-lg bg-white/5"
@@ -210,9 +240,19 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
               </button>
               <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium" :class="entry.selected && 'text-accent-soft'">{{ entry.title }}</p>
-                <p class="truncate text-xs text-ink-faint">{{ entry.artists }}</p>
+                <p class="truncate text-xs text-ink-faint">
+                  <ArtistLinks v-if="entry.artistLinks?.length" :artists="entry.artistLinks" />
+                  <template v-else>{{ entry.artists }}</template>
+                </p>
               </div>
-              <span class="text-[11px] text-ink-faint tabular-nums">{{ entry.duration }}</span>
+              <span class="text-[11px] text-ink-faint tabular-nums group-hover:hidden">{{ entry.duration }}</span>
+              <button
+                class="hidden size-7 place-items-center rounded-full text-ink-faint hover:bg-white/10 hover:text-ink group-hover:grid"
+                aria-label="More options"
+                @click.stop="ui.openMenu($event, queueEntryToMediaItem(entry), { queueIndex: entry.index })"
+              >
+                <Ellipsis class="size-3.5" />
+              </button>
             </li>
           </ol>
         </div>

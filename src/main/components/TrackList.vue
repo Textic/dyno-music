@@ -12,11 +12,23 @@ const props = withDefaults(
     items: MediaItem[];
     /** Album or playlist the tracks belong to: playing one continues through the rest. */
     context?: string;
+    /** Playlist browseId when viewing a playlist page (enables removing owned entries). */
+    playlistBrowseId?: string;
     showIndex?: boolean;
     showAlbum?: boolean;
   }>(),
   { showIndex: false, showAlbum: true },
 );
+
+const emit = defineEmits<{ removed: [index: number] }>();
+
+function openTrackMenu(event: MouseEvent, item: MediaItem, index: number): void {
+  ui.openMenu(event, item, {
+    context: props.context,
+    playlistBrowseId: props.playlistBrowseId,
+    onRemoved: () => emit("removed", index),
+  });
+}
 
 const player = usePlayerStore();
 const ui = useUiStore();
@@ -47,7 +59,7 @@ function activate(item: MediaItem): void {
       class="group grid cursor-default grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-xl px-3 py-1.5 transition hover:bg-white/[0.07] lg:grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)_auto]"
       :class="isCurrent(item) && 'bg-white/[0.07]'"
       @dblclick="activate(item)"
-      @contextmenu="ui.openMenu($event, item, context)"
+      @contextmenu="openTrackMenu($event, item, i)"
     >
       <div class="flex items-center gap-3">
         <span v-if="showIndex" class="w-6 text-right text-sm text-ink-faint tabular-nums group-hover:hidden">
@@ -102,7 +114,7 @@ function activate(item: MediaItem): void {
         <button
           class="grid size-8 place-items-center rounded-full text-ink-faint opacity-0 transition group-hover:opacity-100 hover:bg-white/10 hover:text-ink focus-visible:opacity-100"
           aria-label="More options"
-          @click.stop="ui.openMenu($event, item, context)"
+          @click.stop="openTrackMenu($event, item, i)"
         >
           <Ellipsis class="size-4" />
         </button>

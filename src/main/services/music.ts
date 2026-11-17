@@ -98,6 +98,21 @@ export async function addToPlaylist(playlistId: string, videoId: string): Promis
   return added;
 }
 
+/** Removes a track entry from a user-owned playlist. */
+export async function removeFromPlaylist(playlistId: string, videoId: string, setVideoId: string): Promise<boolean> {
+  const normalized = playlistId.replace(/^VL/, "");
+  const response = await ytmApi<{ status?: string }>("browse/edit_playlist", {
+    playlistId: normalized,
+    actions: [{ action: "ACTION_REMOVE_VIDEO", setVideoId, removedVideoId: videoId }],
+  });
+  const removed = response?.status === "STATUS_SUCCEEDED";
+  if (removed) {
+    invalidate(browseKey(`VL${normalized}`));
+    invalidate(browseKey(LIBRARY.playlists));
+  }
+  return removed;
+}
+
 /** Playlists in the user's library, without YouTube Music's "New playlist" tile. */
 export async function libraryPlaylists(onUpdate?: (playlists: MediaItem[]) => void): Promise<MediaItem[]> {
   const pick = (page: BrowsePage) =>
